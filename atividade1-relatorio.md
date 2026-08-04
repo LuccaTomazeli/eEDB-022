@@ -1,4 +1,5 @@
 # Atividade 1 - Ingestão de Dados eEDB-022
+read.me gerado por IA, com base no relatório de execução ;)
 
 Curso de Especialização em Big Data, Escola Politécnica da USP
 Disciplina: Ingestão de Dados (eEDB-022)
