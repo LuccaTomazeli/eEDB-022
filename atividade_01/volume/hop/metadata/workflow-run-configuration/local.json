@@ -1,0 +1,9 @@
+{
+  "name": "local",
+  "description": "Runs the workflow locally",
+  "engineRunConfiguration": {
+    "Local": {
+      "journalingEnabled": false
+    }
+  }
+}
