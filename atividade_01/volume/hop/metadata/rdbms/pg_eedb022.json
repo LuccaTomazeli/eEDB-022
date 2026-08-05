@@ -4,19 +4,19 @@
     "POSTGRESQL": {
       "sshTunnelPort": "22",
       "sshTunnelUsePrivateKey": false,
-      "databaseName": "eedb022",
+      "databaseName": "atividade_01",
       "pluginId": "POSTGRESQL",
       "sshTunnelEnabled": false,
       "accessType": 0,
       "sshTunnelUsername": "",
-      "hostname": "localhost",
-      "password": "Encrypted 2be98afc86aa7f2e4cb1cab74dcc2fd88",
+      "hostname": "postgres",
+      "password": "root",
       "pluginName": "PostgreSQL",
-      "port": "5433",
+      "port": "5432",
       "sshTunnelHost": "",
       "attributes": {
         "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
-        "QUOTE_ALL_FIELDS": "N",
+        "QUOTE_ALL_FIELDS": "Y",
         "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
         "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
         "PRESERVE_RESERVED_WORD_CASE": "Y",
@@ -28,7 +28,7 @@
       "sshTunnelPassphrase": "Encrypted ",
       "sshTunnelPassword": "Encrypted ",
       "sshTunnelPrivateKeyFile": "",
-      "username": "camila"
+      "username": "root"
     }
   },
   "name": "pg_eedb022"

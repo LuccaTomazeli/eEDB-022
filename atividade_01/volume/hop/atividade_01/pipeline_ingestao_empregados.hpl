@@ -62,7 +62,7 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>/Users/camil/Documents/pós graduação/ingestão de dados/Dados/Empregados/glassdoor_consolidado_join_match_v2.csv</name>
+        <name>${PROJECT_HOME}/dados/Empregados/glassdoor_consolidado_join_match_v2.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
@@ -514,7 +514,7 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>/Users/camil/Documents/pós graduação/ingestão de dados/Dados/Empregados/glassdoor_consolidado_join_match_less_v2.csv</name>
+        <name>${PROJECT_HOME}/dados/Empregados/glassdoor_consolidado_join_match_less_v2.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
@@ -1338,7 +1338,7 @@
     <return_keys>N</return_keys>
     <return_field/>
     <specify_fields>N</specify_fields>
-    <auto_update_table_structure>N</auto_update_table_structure>
+    <auto_update_table_structure>Y</auto_update_table_structure>
     <always_drop_and_recreate>N</always_drop_and_recreate>
     <add_columns>N</add_columns>
     <drop_columns>N</drop_columns>

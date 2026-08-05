@@ -172,13 +172,13 @@
         <field>CNPJ_padronizado</field>
       </key>
       <value>
-        <name>nome</name>
+        <name>Nome</name>
         <rename>nome</rename>
         <default/>
         <type>String</type>
       </value>
       <value>
-        <name>segmento</name>
+        <name>Segmento</name>
         <rename>segmento</rename>
         <default/>
         <type>String</type>
@@ -210,19 +210,19 @@
         <field>cnpj_padronizado</field>
       </key>
       <value>
-        <name>cultura_e_valores</name>
+        <name>Cultura_e_valores</name>
         <rename>cultura_e_valores</rename>
         <default/>
         <type>Integer</type>
       </value>
       <value>
-        <name>geral</name>
+        <name>Geral</name>
         <rename>geral</rename>
         <default/>
         <type>Integer</type>
       </value>
       <value>
-        <name>remuneração_e_benefícios</name>
+        <name>Remuneração_e_benefícios</name>
         <rename>remuneração_e_benefícios</rename>
         <default/>
         <type>Integer</type>
@@ -267,7 +267,7 @@
     <return_keys>N</return_keys>
     <return_field/>
     <specify_fields>N</specify_fields>
-    <auto_update_table_structure>N</auto_update_table_structure>
+    <auto_update_table_structure>Y</auto_update_table_structure>
     <always_drop_and_recreate>N</always_drop_and_recreate>
     <add_columns>N</add_columns>
     <drop_columns>N</drop_columns>

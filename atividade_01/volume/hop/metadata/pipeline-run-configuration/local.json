@@ -1,0 +1,12 @@
+{
+  "name": "local",
+  "description": "Runs the pipeline locally",
+  "engineRunConfiguration": {
+    "Local": {
+      "feedbackSize": "5000",
+      "sampleSize": "100",
+      "sampleTypeInGui": "First",
+      "journalingEnabled": false
+    }
+  }
+}
