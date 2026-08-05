@@ -5,6 +5,10 @@
   "enforcingExecutionInHome" : true,
   "parentProjectName" : "",
   "config" : {
-    "variables" : [ ]
+    "variables" : [ {
+      "name" : "DADOS_HOME",
+      "value" : "/Dados",
+      "description" : "Diretório base dos arquivos de dados de entrada"
+    } ]
   }
 }

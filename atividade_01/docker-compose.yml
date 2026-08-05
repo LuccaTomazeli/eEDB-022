@@ -20,6 +20,6 @@ services:
       - HOP_SERVER_PORT=8080
     volumes:
       - ./volume/hop:/usr/local/tomcat/webapps/ROOT/config/projects/default
-      - ../Dados:/usr/local/tomcat/webapps/ROOT/config/projects/default/dados
+      - ../Dados:/Dados
     depends_on:
       - postgres

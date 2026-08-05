@@ -62,7 +62,7 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>${PROJECT_HOME}/dados/Empregados/glassdoor_consolidado_join_match_v2.csv</name>
+        <name>${DADOS_HOME}/Empregados/glassdoor_consolidado_join_match_v2.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
@@ -514,7 +514,7 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>${PROJECT_HOME}/dados/Empregados/glassdoor_consolidado_join_match_less_v2.csv</name>
+        <name>${DADOS_HOME}/Empregados/glassdoor_consolidado_join_match_less_v2.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>

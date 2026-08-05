@@ -62,49 +62,49 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2021_tri_01.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2021_tri_01.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2021_tri_02.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2021_tri_02.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2021_tri_03.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2021_tri_03.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2021_tri_04.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2021_tri_04.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2022_tri_01.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2022_tri_01.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2022_tri_03.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2022_tri_03.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
         <include_subfolders>N</include_subfolders>
       </file>
       <file>
-        <name>${PROJECT_HOME}/dados/Reclamacoes/2022_tri_04.csv</name>
+        <name>${DADOS_HOME}/Reclamacoes/2022_tri_04.csv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>

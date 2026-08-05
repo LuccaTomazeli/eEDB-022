@@ -62,7 +62,7 @@
     <rootUriNameFieldName/>
     <files>
       <file>
-        <name>${PROJECT_HOME}/dados/Bancos/EnquadramentoInicia_v2.tsv</name>
+        <name>${DADOS_HOME}/Bancos/EnquadramentoInicia_v2.tsv</name>
         <filemask/>
         <exclude_filemask/>
         <file_required>N</file_required>
