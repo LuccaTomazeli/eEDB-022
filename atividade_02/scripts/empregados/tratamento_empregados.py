@@ -5,7 +5,7 @@ df = pd.read_csv("data/raw/Empregados/glassdoor_consolidado_join_match_v2.csv", 
 print(f"match_v2: {df.shape[0]} linhas, {df.shape[1]} colunas")
 
 # 2. remover os matches identificados como incorretos ou duplicados
-empresas_excluidas = ["Apex Group", "J.P. Morgan"]  # Apex Group: match incorreto | J.P. Morgan: duplicata do JPMorgan Chase & Co (menos reviews)
+empresas_excluidas = ["Apex Group", "J.P. Morgan", "Votorantim"]  # Apex Group: match incorreto | J.P. Morgan: duplicata do JPMorgan Chase & Co | Votorantim: e a industria, nao o banco
 df = df[~df["employer_name"].isin(empresas_excluidas)]
 print(f"Total após exclusão: {df.shape[0]} linhas")
 
@@ -16,4 +16,3 @@ df["employer-founded"] = df["employer-founded"].fillna("NAO_INFORMADO")
 # 4. salvar como parquet na camada trusted
 df.to_parquet("data/trusted/empregados_trusted.parquet", index=False)
 print(f"Arquivo salvo em data/trusted/empregados_trusted.parquet com {len(df)} linhas")
-
