@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: eedb022_a2_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eedb022_a2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: camila123
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./volume/postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eedb022_a2"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pipeline:
+    build:
+      context: .
+    container_name: eedb022_a2_pipeline
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: eedb022_a2
+      DB_USER: postgres
+      DB_PASSWORD: camila123
+    volumes:
+      - ../:/workspace
+    working_dir: /workspace/atividade_02
+    command: >
+      sh -c "python scripts/bancos/tratamento_bancos.py &&
+             python scripts/empregados/tratamento_empregados.py &&
+             python scripts/reclamacoes/tratamento_reclamacoes.py &&
+             python scripts/delivery/tratamento_delivery.py &&
+             python scripts/delivery/subir_postgres.py"
