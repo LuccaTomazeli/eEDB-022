@@ -3,7 +3,7 @@ import sys
 sys.path.append("scripts")
 from conexao import get_engine
 
-df = pd.read_parquet("data/trusted/delivery_bancos.parquet")
+df = pd.read_parquet("data/delivery/delivery_bancos.parquet")
 
 engine = get_engine()
 df.to_sql("delivery_bancos", engine, if_exists="replace", index=False)

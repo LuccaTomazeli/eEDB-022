@@ -2,7 +2,7 @@ import pandas as pd
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 250)
 
-df = pd.read_parquet("data/trusted/delivery_bancos.parquet")
+df = pd.read_parquet("data/delivery/delivery_bancos.parquet")
 print(df.shape)
 print(df.columns.tolist())
 print()

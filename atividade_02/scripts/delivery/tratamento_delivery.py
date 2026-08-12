@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 
 # 1. ler as tres tabelas trusted
 bancos = pd.read_parquet("data/trusted/bancos_trusted.parquet")
@@ -64,5 +65,6 @@ print(f"Bancos com Glassdoor E Reclamacoes: {(df['Geral'].notnull() & df['total_
 df = df.drop(columns=["nome_join"])
 
 # 8. salvar como parquet na camada delivery
-df.to_parquet("data/trusted/delivery_bancos.parquet", index=False)
+Path("data/delivery").mkdir(parents=True, exist_ok=True)
+df.to_parquet("data/delivery/delivery_bancos.parquet", index=False)
 print(f"Arquivo salvo com {len(df)} linhas e {len(df.columns)} colunas")
