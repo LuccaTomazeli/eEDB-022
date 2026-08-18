@@ -1,11 +1,7 @@
 from pyspark.sql.functions import col, trim, regexp_replace, sum as _sum, avg, count, coalesce
 
 
-def processar_delivery(spark):
-    bancos = spark.read.parquet("volume/trusted/bancos_trusted.parquet")
-    empregados = spark.read.parquet("volume/trusted/empregados_trusted.parquet")
-    reclamacoes = spark.read.parquet("volume/trusted/reclamacoes_trusted.parquet")
-
+def processar_delivery(spark, bancos, empregados, reclamacoes):
     bancos = bancos.withColumn("nome_join", trim(regexp_replace(col("Nome"), " - PRUDENCIAL", "")))
     empregados = empregados.withColumn("nome_join", trim(col("Nome")))
 

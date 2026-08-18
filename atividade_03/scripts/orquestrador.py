@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from pathlib import Path
 from pyspark.sql import SparkSession
 from sqlalchemy import create_engine, text
@@ -17,6 +18,7 @@ def get_spark_session():
         .config("spark.driver.extraJavaOptions", "-Duser.name=spark")
         .config("spark.executor.extraJavaOptions", "-Duser.name=spark")
         .config("spark.jars.packages", "org.postgresql:postgresql:42.7.3")
+        .config("spark.sql.adaptive.enabled", "true")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("WARN")
@@ -45,30 +47,31 @@ def criar_schemas():
 
 
 def carregar_tabela_pg(df, dbtable):
-    db_user, db_pass, url, conn_str = get_db_connection_info()
-    try:
-        df.write.format("jdbc").option("url", url).option("dbtable", dbtable) \
-            .option("user", db_user).option("password", db_pass) \
-            .option("driver", "org.postgresql.Driver").mode("overwrite").save()
-        print(f"Tabela '{dbtable}' criada no Postgres via JDBC: {df.count()} linhas")
-    except Exception as e:
-        print(f"Fallback para SQLAlchemy na tabela '{dbtable}' devido a: {e}")
-        engine = create_engine(conn_str)
-        schema, table_name = dbtable.split(".")
-        df_pd = df.toPandas()
-        df_pd.to_sql(table_name, engine, schema=schema, if_exists="replace", index=False)
-        print(f"Tabela '{dbtable}' criada no Postgres via SQLAlchemy com {len(df_pd)} linhas")
+    db_user, db_pass, url, _ = get_db_connection_info()
+    df.write.format("jdbc").option("url", url).option("dbtable", dbtable) \
+        .option("user", db_user).option("password", db_pass) \
+        .option("driver", "org.postgresql.Driver").mode("overwrite").save()
+    print(f"Tabela '{dbtable}' gerada no Postgres via PySpark JDBC")
 
 
 def salvar_single_parquet(df, filepath):
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    df.toPandas().to_parquet(filepath, index=False)
+    path_obj = Path(filepath)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    temp_dir = path_obj.parent / f"_temp_{path_obj.stem}"
+
+    df.coalesce(1).write.mode("overwrite").parquet(str(temp_dir))
+    part_files = list(temp_dir.glob("part-*.parquet"))
+    if part_files:
+        if path_obj.exists():
+            path_obj.unlink()
+        shutil.move(str(part_files[0]), str(path_obj))
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def main():
     spark = get_spark_session()
     try:
-        print("Iniciando Orquestracao da Pipeline com PySpark...")
+        print("Iniciando Orquestracao da Pipeline com PySpark (Distribuido)...")
         criar_schemas()
 
         print("--- Executando Camada Raw ---")
@@ -79,7 +82,7 @@ def main():
         carregar_tabela_pg(df_aux_raw, "raw.tb_aux_bcb")
 
         print("--- Executando Camada Trusted ---")
-        df_bancos_tr, df_emp_tr, df_rec_tr = processar_trusted(spark)
+        df_bancos_tr, df_emp_tr, df_rec_tr = processar_trusted(spark, df_bancos_raw, df_emp_raw, df_rec_raw, df_aux_raw)
         salvar_single_parquet(df_bancos_tr, "volume/trusted/bancos_trusted.parquet")
         salvar_single_parquet(df_emp_tr, "volume/trusted/empregados_trusted.parquet")
         salvar_single_parquet(df_rec_tr, "volume/trusted/reclamacoes_trusted.parquet")
@@ -88,7 +91,7 @@ def main():
         carregar_tabela_pg(df_rec_tr, "trusted.reclamacoes")
 
         print("--- Executando Camada Delivery ---")
-        df_delivery = processar_delivery(spark)
+        df_delivery = processar_delivery(spark, df_bancos_tr, df_emp_tr, df_rec_tr)
         salvar_single_parquet(df_delivery, "volume/delivery/delivery_bancos.parquet")
         carregar_tabela_pg(df_delivery, "delivery.bancos")
 

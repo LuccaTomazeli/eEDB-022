@@ -1,18 +1,10 @@
-import json
-import glob
-from pyspark.sql.functions import col, lpad, when, trim, regexp_replace
+from pyspark.sql.functions import col, lpad, when, trim, regexp_replace, broadcast
 
 
-def processar_bancos(spark):
-    with open("volume/raw/tb_aux_bcb.json", encoding="utf-8") as f:
-        depara_dict = json.load(f)
-    depara_data = [(k, v) for k, v in depara_dict.items()]
-    df_depara = spark.createDataFrame(depara_data, ["CNPJ", "Nome_DePara"])
-
-    df = spark.read.option("header", "true").option("delimiter", "\t").csv("../Dados/Bancos/EnquadramentoInicia_v2.tsv")
-    df = df.withColumn("CNPJ", lpad(col("CNPJ"), 8, "0"))
+def processar_bancos(spark, df_bancos_raw, df_aux_bcb):
+    df = df_bancos_raw.withColumn("CNPJ", lpad(col("CNPJ"), 8, "0"))
     df = df.withColumn("nome_quebrado", col("Nome").contains("\ufffd"))
-    df = df.join(df_depara, on="CNPJ", how="left")
+    df = df.join(broadcast(df_aux_bcb), on="CNPJ", how="left")
     df = df.withColumn(
         "Nome",
         when(col("nome_quebrado") & col("Nome_DePara").isNotNull(), col("Nome_DePara")).otherwise(col("Nome"))
@@ -21,20 +13,14 @@ def processar_bancos(spark):
     return df.drop("nome_quebrado", "Nome_DePara")
 
 
-def processar_empregados(spark):
-    df = spark.read.option("header", "true").option("delimiter", "|").csv("../Dados/Empregados/glassdoor_consolidado_join_match_v2.csv")
+def processar_empregados(spark, df_emp_raw):
     empresas_excluidas = ["Apex Group", "J.P. Morgan", "Votorantim"]
-    df = df.filter(~col("employer_name").isin(empresas_excluidas))
+    df = df_emp_raw.filter(~col("employer_name").isin(empresas_excluidas))
     return df.fillna({"employer-founded": "NAO_INFORMADO"})
 
 
-def processar_reclamacoes(spark):
-    arquivos = sorted(glob.glob("../Dados/Reclamacoes/*.csv"))
-    arquivos = [a for a in arquivos if "nao_ha_dados" not in a]
-    df = spark.read.option("header", "true").option("delimiter", ";").option("encoding", "latin1").csv(arquivos)
-    colunas_validas = [c for c in df.columns if not c.startswith("Unnamed")]
-    df = df.select(colunas_validas)
-
+def processar_reclamacoes(spark, df_rec_raw):
+    df = df_rec_raw
     for c in df.columns:
         novo_nome = c.replace("\x96", "-").replace("\u0096", "-")
         if novo_nome != c:
@@ -50,8 +36,8 @@ def processar_reclamacoes(spark):
     return df.drop("indice_limpo", "indice_temp")
 
 
-def processar_trusted(spark):
-    df_bancos = processar_bancos(spark)
-    df_empregados = processar_empregados(spark)
-    df_reclamacoes = processar_reclamacoes(spark)
-    return df_bancos, df_empregados, df_reclamacoes
+def processar_trusted(spark, df_bancos_raw, df_emp_raw, df_rec_raw, df_aux_bcb):
+    df_bancos_tr = processar_bancos(spark, df_bancos_raw, df_aux_bcb)
+    df_emp_tr = processar_empregados(spark, df_emp_raw)
+    df_rec_tr = processar_reclamacoes(spark, df_rec_raw)
+    return df_bancos_tr, df_emp_tr, df_rec_tr
