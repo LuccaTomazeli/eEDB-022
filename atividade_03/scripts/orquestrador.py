@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from pyspark.sql import SparkSession
 from sqlalchemy import create_engine, text
+
 from raw import processar_raw
 from trusted import processar_trusted
 from delivery import processar_delivery
@@ -11,7 +12,9 @@ from delivery import processar_delivery
 
 def get_spark_session():
     spark = (
-        SparkSession.builder.appName("PipelineAtividade03")
+        SparkSession.builder
+        .master("local")
+        .appName("PipelineAtividade03")
         .config("spark.driver.memory", "2g")
         .config("spark.jars.ivy", "/tmp/.ivy2")
         .config("spark.hadoop.user.name", "spark")
