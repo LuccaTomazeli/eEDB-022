@@ -130,7 +130,3 @@ dbt run
 cd ..
 python3 scripts/export_parquet.py
 ```
-
-## Link do GitHub
-
-[inserir link do repositório]
