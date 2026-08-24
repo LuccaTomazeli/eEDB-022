@@ -82,20 +82,20 @@ O Spark precisa do driver JDBC do PostgreSQL (`postgresql-42.7.4.jar`) para cons
 Toda a limpeza foi feita em SQL, através de models do DBT.
 
 **`trusted_bancos`**
-Padronizei os CNPJs para 8 dígitos completos, recuperando os zeros à esquerda que se perderam por estarem armazenados como número. Removi registros com CNPJ inválido (placeholder zero) e eliminei linhas duplicadas.
+Padronização dos CNPJs para 8 dígitos completos, recuperando os zeros à esquerda perdidos por estarem armazenados como número. Remoção de registros com CNPJ inválido (placeholder zero) e eliminação de linhas duplicadas.
 
 **`trusted_reclamacoes`**
-Removi os registros sem CNPJ próprio (linhas de conglomerados que não têm identificação individual), padronizei os CNPJs para 8 dígitos completos, excluí colunas irrelevantes ou corrompidas geradas na ingestão, e eliminei linhas duplicadas.
+Remoção dos registros sem CNPJ próprio (linhas de conglomerados que não têm identificação individual), padronização dos CNPJs para 8 dígitos completos, exclusão de colunas irrelevantes ou corrompidas geradas na ingestão, e eliminação de linhas duplicadas.
 
 **`trusted_empregados`**
-Normalizei os nomes dos bancos (removendo espaços e padronizando em maiúsculo) para garantir compatibilidade no cruzamento com as demais fontes, removi registros sem nome de banco preenchido, e consolidei bancos com mais de uma avaliação no Glassdoor usando a média das notas (`GROUP BY` + `AVG`), eliminando duplicatas de cruzamento.
+Normalização dos nomes dos bancos (remoção de espaços e padronização em maiúsculo) para garantir compatibilidade no cruzamento com as demais fontes, remoção de registros sem nome de banco preenchido, e consolidação de bancos com mais de uma avaliação no Glassdoor usando a média das notas (`GROUP BY` + `AVG`), eliminando duplicatas de cruzamento.
 
 **Correção de encoding com de-para do Bacen**
-O arquivo original de bancos veio com os nomes em encoding corrompido (acentos quebrados), um problema da própria fonte de dados. Resolvi criando o `depara_bcb.py`, que busca o de-para oficial de CNPJ → nome na API pública do Banco Central e carrega em `raw.depara_bcb`. O `trusted_bancos` usa esse de-para (com `COALESCE` para o nome original como plano B, caso algum CNPJ não seja encontrado), mantendo dois nomes separados: um "completo" (oficial, acentuado, para exibição) e um "de busca" (nome popular, usado só para o cruzamento com o Glassdoor, já que o nome oficial do Bacen costuma ser mais formal que o nome usado no Glassdoor).
+O arquivo original de bancos veio com os nomes em encoding corrompido (acentos quebrados), um problema da própria fonte de dados. A correção foi feita com o script `depara_bcb.py`, que busca o de-para oficial de CNPJ → nome na API pública do Banco Central e carrega em `raw.depara_bcb`. O `trusted_bancos` usa esse de-para (com `COALESCE` para o nome original como plano B, caso algum CNPJ não seja encontrado), mantendo dois nomes separados: um "completo" (oficial, acentuado, para exibição) e um "de busca" (nome popular, usado só para o cruzamento com o Glassdoor, já que o nome oficial do Bacen costuma ser mais formal que o nome usado no Glassdoor).
 
 ## Camada Delivery
 
-**`delivery_final`** une as três fontes tratadas por CNPJ e nome padronizados, agrega o total de reclamações por instituição, e trata os bancos sem reclamações registradas para exibir valor zero em vez de vazio (`LEFT JOIN` + `COALESCE`).
+**`delivery_final`** une as três fontes tratadas por CNPJ e nome padronizados, agrega o total de reclamações por instituição, e trata os bancos sem reclamações registradas para exibir valor zero em vez de vazio (`LEFT JOIN` + `COALESCE`). Materializada como tabela dentro do schema `delivery` do PostgreSQL.
 
 ## Resultado final
 
