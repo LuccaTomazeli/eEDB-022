@@ -1,0 +1,5 @@
+eedb022_dbt/logs/
+eedb022_dbt/target/
+logs/
+*.pyc
+__pycache__/
