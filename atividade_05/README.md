@@ -1,23 +1,21 @@
-# Atividade 4 — Orquestração, Qualidade e Metadados
+# Atividade 5 — Orquestração, Qualidade e Metadados
 
 Curso de Especialização em Big Data — Escola Politécnica da USP
 Ingestão de Dados eEDB-022
+
 Grupo: Camila Faleiros, Fernando Luiz, Guilherme Sergio e Lucca Tomazeli
 
 ## Objetivo
 
 Utilizar ferramenta de orquestração dos processos realizados nas últimas 3 atividades. 
-Neste laboratórios, vamos utilizar as fontes de dados da atividade 04, seguindo da seguinte forma:
 
-- Orquestração
-Airflow
+Neste laboratório, vamos utilizar as fontes de dados da atividade 04, seguindo da seguinte forma:
 
-- Qualidade
-Great Expectations
+- **Orquestração:**  Airflow
+- **Qualidade:** Great Expectations
+- **Metadados:** DataHub
 
-- Metadados
-DataHub
-
+```
                   AIRFLOW
                      │
           ┌──────────┴──────────┐
@@ -50,11 +48,19 @@ DataHub
                  │         │
                  ▼         ▼
               DATAHUB    STOP
+```
 
 ## Decisões técnicas
 
+Inserir texto
+
+
 ## Estrutura do projeto
 
+Inserir texto
+
+
+```
 eEDB-022/
 │
 └── atividade_05/
@@ -74,14 +80,26 @@ eEDB-022/
     ├── docker-compose.yml
     ├── README.md
     └── relatorio-atividade-5.pdf
+```
 
 ## Pipeline
 
+Inserir texto
+
+
 ## Resultado final
+
+Inserir texto
+
 
 ## Reprodução
 
+Inserir texto
+
 
 ## Conclusão e Considerações
+
+Inserir texto
+
 
 
