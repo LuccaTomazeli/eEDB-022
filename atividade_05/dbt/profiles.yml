@@ -1,0 +1,13 @@
+eedb022_dbt:
+  target: dev
+
+  outputs:
+    dev:
+      type: postgres
+      host: pipeline-postgres
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: eedb022_a5
+      schema: trusted
+      threads: 4

@@ -13,7 +13,7 @@ Neste laboratório, vamos utilizar as fontes de dados da atividade 04, seguindo 
 
 - **Orquestração:**  Airflow
 - **Qualidade:** Great Expectations
-- **Metadados:** DataHub (DBT, PostgreSQL, Docker)
+- **Metadados:** DataHub 
 
 ```
                   AIRFLOW
@@ -200,6 +200,107 @@ Get-ChildItem .\jars
 
 # 18. Criar arquivo 'Dockerfile'
 -- atividade_05/Dockerfile
+
+# 19. Verficar versões: Java, PySpark, DBT e Great Expectations
+docker compose exec airflow-scheduler java -version
+docker compose exec airflow-scheduler python -c "import pyspark; print('PySpark:', pyspark.__version__)"
+docker compose exec airflow-scheduler dbt --version
+docker compose exec airflow-scheduler python -c "import great_expectations as gx; print('Great Expectations:', gx.__version__)"
+
+# 20. Adaptar conteúdo em 'scripts\depara_bcb.py'
+host = pipeline-postgres
+port = 5432
+database = eedb022_a5
+
+# 21. Adaptar conteúdo em 'scripts\export_parquet.py'
+trusted.trusted_bancos
+trusted.trusted_reclamacoes
+trusted.trusted_empregados
+
+delivery.delivery_final
+
+# 22. Criar o 'dbt\profiles.yml'
+eedb022_dbt:
+  target: dev
+
+  outputs:
+    dev:
+      type: postgres
+      host: pipeline-postgres
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: eedb022_a5
+      schema: trusted
+      threads: 4
+
+# 23. Criar o 'dbt\dbt_project.yml'
+name: 'eedb022_dbt'
+
+version: '1.0.0'
+
+profile: 'eedb022_dbt'
+
+model-paths:
+  - models
+
+macro-paths:
+  - macros
+
+models:
+  eedb022_dbt:
+    +materialized: table
+
+# 24. Executar o 'scripts\ingest_raw.py'
+python ingest_raw.py
+
+# 25. Consultar tabelas criadas e registros no Postgres
+SELECT
+    schemaname,
+    tablename
+FROM pg_tables
+WHERE schemaname = 'raw'
+ORDER BY tablename;
+
+# 26. Executar o 'scripts\depara_bcb.py'
+python depara_bcb.py
+
+
+# 27. Executar o DBT profiles dir
+cd /opt/atividade_05/dbt
+dbt run --profiles-dir .
+
+# 28. Exportar para Parquet 'scripts\export_parquet.py'
+python export_parquet.py
+
+# 29. Criar/Executar Validação do Great Expectations
+cd /opt/atividade_05/scripts
+python quality_check.py
+
+# 30. Criar/Construir DAG 'atividade_05_pipeline.py'
+atividade_05/dags/atividade_05_pipeline.py
+
+# 31. Disparar o Pipeline pelo Airflow (Orquestrador)
+http://localhost:8080/dags/pipeline_atividade_05/tasks
+
+# 32. Realizar Download/Instalação e QuickStart do DataHub
+pip install acryl-datahub
+datahub docker quickstart
+docker system df
+
+# 33. Acessar o DataHub
+http://localhost:9002/
+
+# 34. Cadastrar Fonte de Dados no DataHub
+Menu >> Criar Fonte >> Postgres
+
+# 35. Configuração da Fonte de Dados (Host Docker - Base Postgres)
+Host:       host.docker.internal
+Port:       5433 (no Windows)
+Database:   eedb022_a5
+Username:   postgres
+Password:   postgres
+
 
 
 
