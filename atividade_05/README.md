@@ -168,12 +168,152 @@ Delivery
 delivery.delivery_final
 
 
-## 6. Resultado final
+Estrutura das camadas
 
-Inserir texto
+### 5.1 Raw
+
+Dados carregados das fontes com mínima transformação.
+
+Principais tabelas:
+
+- `raw.bancos`
+- `raw.empregados`
+- `raw.reclamacoes`
+- `raw.depara_bcb`
+
+### 5.2 Trusted
+
+Dados tratados e preparados para consumo.
+
+Principais tabelas:
+
+- `trusted.trusted_bancos`
+- `trusted.trusted_empregados`
+- `trusted.trusted_reclamacoes`
+
+### 5.3 Delivery
+
+Camada final consolidada para análise:
+
+- `delivery.delivery_final`
+
+# 6. DAG principal
+
+O pipeline principal é o **`pipeline_atividade_05`**, executado no Airflow com o seguinte fluxo:
+
+```text
+ingest_raw
+    ↓
+depara_bcb
+    ↓
+dbt_run
+    ↓
+quality_check
+    ↓
+export_parquet
+```
+
+# 7. Descrição das etapas
+
+**ingest_raw:** realiza a ingestão dos arquivos para a camada `raw`.
+
+**depara_bcb:** aplica o relacionamento/de-para necessário aos dados do Banco Central.
+
+**dbt_run:** executa os modelos de transformação do projeto dbt.
+
+**quality_check:** executa as validações de qualidade dos dados.
+
+**export_parquet:** exporta os dados finais para o formato Parquet.
+
+# 8. DBT
+
+O projeto dbt está organizado nos seguintes modelos:
+
+```text
+models/
+├── delivery_final.sql
+├── trusted_bancos.sql
+├── trusted_empregados.sql
+└── trusted_reclamacoes.sql
+```
+
+Os modelos principais são materializados como tabelas no PostgreSQL.
+
+O `delivery_final` consolida informações das tabelas trusted e representa a camada final de consumo.
+
+# 9. Qualidade de dados
+
+O pipeline utiliza **Great Expectations** para validar os dados antes da exportação final.
+
+Entre os controles aplicados estão validações de estrutura, preenchimento e consistência dos dados utilizados pelo pipeline.
+
+# 10. Exportação Parquet
+
+Após a execução das validações, os dados da camada final são exportados para arquivos **Parquet**, permitindo armazenamento em formato colunar e adequado para uso analítico.
+
+# 11. DataHub
+
+O **DataHub 1.7.0** foi utilizado para catalogação dos ativos e registro dos relacionamentos entre os conjuntos de dados.
+
+Foi realizada a ingestão dos metadados do projeto dbt a partir de:
+
+```text
+/dbt/target/manifest.json
+/dbt/target/run_results.json
+```
+
+A configuração utilizada está no arquivo:
+
+```text
+atividade_05/dbt/datahub_dbt.yml
+```
+
+O catálogo contém os modelos dbt e seus relacionamentos de lineage.
+
+# 12. Lineage principal
+
+O relacionamento principal da atividade é:
+
+```text
+trusted_bancos
+        \
+         \
+trusted_empregados ---> delivery_final
+         /
+        /
+trusted_reclamacoes
+```
+
+Ou, de forma simplificada:
+
+```text
+PostgreSQL Trusted
+   ├── trusted_bancos
+   ├── trusted_empregados
+   └── trusted_reclamacoes
+            |
+            v
+      dbt.delivery_final
+```
+
+Também foi registrada a lineage física entre os datasets PostgreSQL correspondentes.
+
+## 13. Acessos locais
+
+### DataHub
+
+```text
+http://localhost:9002
+```
+
+### Airflow
+
+```text
+http://localhost:8080
+```
 
 
-## 7. Reprodução
+## 14. Reprodução
 
 ```bash
 # 1. Verificar Versão Docker e Docker Compose
@@ -410,24 +550,70 @@ docker run --rm `
   acryldata/datahub-ingestion:v1.7.0 `
   ingest run -c /dbt/datahub_dbt.yml --dry-run`
 
-# 43. Executar Ingestão para DataHub
+# 43. Executar Ingestão (relacionamentos) para DataHub
 docker run --rm `
-  -v "C:\Users\ferna\Documents\Github\eEDB-022\atividade_05\dbt:/dbt" `
+  -v "${PWD}\dbt:/dbt" `
   acryldata/datahub-ingestion:v1.7.0 `
-  ingest run -c /dbt/datahub_dbt.yml `
+  ingest -c /dbt/datahub_dbt.yml`
 
 # 44. DataHub - Validar Lineage de 'trusted_bancos'
 
 
-
 ```
-## 8. Evidências
+
+## 15. Evidências
+
+Todas as evidências apresentandas no item anterior estão no diretório: atividade_05\prints
 
 
+## 16. Validações realizadas
 
-## 9. Conclusão e Considerações
+Foi validado que:
 
-A Atividade 5 implementou um pipeline de dados integrado utilizando Airflow como orquestrador, PostgreSQL como banco de dados, dbt para transformação, Great Expectations para validação da qualidade e DataHub para catalogação e gerenciamento dos metadados.
+- O PostgreSQL está disponível para o pipeline.
+- O projeto dbt possui conexão válida com o banco.
+- Os modelos dbt são executados sobre a camada trusted.
+- Os metadados dbt são enviados ao DataHub.
+- A lineage entre `trusted_*` e `delivery_final` foi registrada no DataHub.
+- Os datasets PostgreSQL estão presentes no catálogo do DataHub.
+
+## 17. Problemas/Dificuldades Enfrentadas
+
+Durante a implementação foram encontrados alguns problemas de ambiente e integração:
+
+- DataHub e OpenSearch
+
+O DataHub apresentou instabilidade durante a recuperação do serviço de OpenSearch, incluindo períodos em que os índices ficaram indisponíveis ou em recuperação. Após a inicialização do OpenSearch, os índices voltaram a ser processados.
+
+- Índices do DataHub
+
+Foi identificado que os metadados dos modelos dbt permaneciam armazenados no GMS, mas alguns datasets dbt não estavam sendo retornados pelo índice de busca do OpenSearch. Isso dificultou a visualização dos ativos pela interface web.
+
+- Interface do DataHub
+
+Em alguns momentos a interface do DataHub (`localhost:9002`) apresentou carregamento lento, associado à alta utilização de CPU dos serviços, principalmente do Kafka, durante as atividades de recuperação e ingestão.
+
+- Airflow 3.3.1
+
+Houve dificuldade inicial para gerenciamento do usuário devido à utilização do `SimpleAuthManager`. A configuração encontrada indicava:
+
+```text
+admin:admin
+```
+
+como usuário configurado, enquanto a senha era gerada e armazenada pelo próprio mecanismo de autenticação.
+
+- Comandos de ingestão DataHub
+
+Na tentativa de executar uma nova ingestão, foi necessário corrigir o diretório utilizado no volume Docker. O erro ocorreu porque o arquivo `datahub_dbt.yml` não estava disponível no caminho `/dbt` dentro do container.
+
+- Instabilidade de recursos
+
+Durante o laboratório, alguns serviços Docker apresentaram consumo elevado de CPU, principalmente o Kafka. Foi necessário monitorar os containers com `docker stats` e `docker ps` para identificar os serviços responsáveis pela lentidão.
+
+# 18. Conclusão
+
+A atividade 5 implementou um pipeline completo de engenharia de dados, integrando ingestão, tratamento, transformação, validação, exportação e catalogação.
 
 O pipeline principal foi estruturado da seguinte forma:
 
@@ -447,17 +633,4 @@ Parquet
    ↓
 DataHub
 
-Foram validadas as principais etapas de execução do ambiente, incluindo:
-
-funcionamento do Docker;
-execução do Airflow;
-conexão com PostgreSQL;
-execução do dbt;
-geração do manifesto dbt;
-criação dos modelos Trusted;
-criação do modelo Delivery;
-exportação para Parquet;
-catalogação das tabelas no DataHub;
-ingestão dos metadados dbt no DataHub.
-
-
+O fluxo utiliza Airflow para orquestração, PostgreSQL para persistência, dbt para transformação, Great Expectations para qualidade, Parquet para exportação e DataHub para catálogo e lineage, atendendo aos objetivos propostos para o laboratório.
