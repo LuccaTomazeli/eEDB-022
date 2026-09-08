@@ -3,96 +3,177 @@
 Curso de Especialização em Big Data — Escola Politécnica da USP
 Ingestão de Dados eEDB-022
 
-Grupo: Camila Faleiros, Fernando Luiz, Guilherme Sergio e Lucca Tomazeli
+**Grupo:** Camila Faleiros, Fernando Luiz, Guilherme Sergio e Lucca Tomazeli
 
-## Objetivo
+## 1. Objetivo
 
-Utilizar ferramenta de orquestração dos processos realizados nas últimas 3 atividades. 
+A Atividade 5 tem como objetivo integrar e orquestrar os processos desenvolvidos na Atividade 04, utilizando ferramentas voltadas para:
 
-Neste laboratório, vamos utilizar as fontes de dados da atividade 04, seguindo da seguinte forma:
+- Orquestração de pipelines: **Apache Airflow**
+- Transformação de dados: **dbt**
+- Qualidade de dados: **Great Expectations**
+- Banco de dados: **PostgreSQL**
+- Catálogo e metadados: **DataHub**
+- Persistência/entrega dos dados: **Parquet**
 
-- **Orquestração:**  Airflow
-- **Qualidade:** Great Expectations
-- **Metadados:** DataHub 
+A solução foi construída utilizando containers Docker, permitindo reproduzir o ambiente de execução localmente.
 
-```
-                  AIRFLOW
-                     │
-          ┌──────────┴──────────┐
-          │                     │
-          ▼                     ▼
-    ingest_raw.py         depara_bcb.py
-          │                     │
-          └──────────┬──────────┘
-                     ▼
-                 PostgreSQL
-                     │
-                     ▼
-                   DBT
-                     │
-          ┌──────────┼──────────┐
-          ▼          ▼          ▼
-       Trusted    Trusted    Trusted
-          │          │          │
-          └──────────┼──────────┘
-                     ▼
-                  Delivery
-                     │
-                     ▼
-             GREAT EXPECTATIONS
-                     │
-                     ▼
-                Validação OK?
-                  /       \
-                SIM       NÃO
-                 │         │
-                 ▼         ▼
-              DATAHUB    STOP
-```
+---
 
-## Decisões técnicas
-
-Inserir texto
-
-
-## Estrutura do projeto
-
-Inserir texto
-
+## 2. Arquitetura da solução
 
 ```
-eEDB-022/
+   AIRFLOW
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │ ingest_raw  │
+                     └──────┬──────┘
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │  PostgreSQL │
+                     │     RAW     │
+                     └──────┬──────┘
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │ depara_bcb  │
+                     └──────┬──────┘
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │     dbt     │
+                     └──────┬──────┘
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+              ▼             ▼             ▼
+        trusted_bancos  trusted_     trusted_
+                       empregados   reclamacoes
+              │             │             │
+              └─────────────┼─────────────┘
+                            │
+                            ▼
+                    delivery_final
+                            │
+                            ▼
+                  Great Expectations
+                            │
+                            ▼
+                     Quality Check
+                            │
+                            ▼
+                       Parquet
+                            │
+                            ▼
+                        DataHub
+
+```
+
+## 3. Tecnologias utilizadas
+
+| Tecnologia         | Finalidade                                     |
+| ------------------ | ---------------------------------------------- |
+| Docker             | Containerização do ambiente                    |
+| Docker Compose     | Orquestração dos containers                    |
+| Apache Airflow     | Orquestração do pipeline                       |
+| PostgreSQL         | Armazenamento dos dados                        |
+| Python             | Scripts de ingestão, transformação e validação |
+| dbt                | Transformação e modelagem                      |
+| Great Expectations | Validação da qualidade dos dados               |
+| DataHub            | Catálogo e gerenciamento de metadados          |
+| Parquet            | Formato de armazenamento dos dados finais      |
+| Git/GitHub         | Versionamento do projeto                       |
+
+
+
+## 4. Estrutura do projeto
+
+A estrutura principal da Atividade 5 é:
+
+```
+atividade_05/
 │
-└── atividade_05/
-    │
-    ├── airflow/
-    │   ├── dags/
-    │   │   └── pipeline_atividade_05.py
-    │   └── Dockerfile
-    │
-    ├── great_expectations/
-    │   ├── expectations/
-    │   └── ...
-    │
-    ├── datahub/
-    │   └── ...
-    │
-    ├── docker-compose.yml
-    ├── README.md
-    └── relatorio-atividade-5.pdf
+├── dags/
+│   ├── atividade_05_teste.py
+│   └── atividade_05_pipeline.py
+│
+├── scripts/
+│   ├── ingest_raw.py
+│   ├── depara_bcb.py
+│   ├── quality_check.py
+│   └── export_parquet.py
+│
+├── dbt/
+│   ├── dbt_project.yml
+│   ├── profiles.yml
+│   ├── datahub_dbt.yml
+│   │
+│   ├── models/
+│   │   ├── trusted_bancos.sql
+│   │   ├── trusted_empregados.sql
+│   │   ├── trusted_reclamacoes.sql
+│   │   └── delivery_final.sql
+│   │
+│   └── target/
+│       ├── manifest.json
+│       └── run_results.json
+│
+├── data/
+│   ├── input/
+│   ├── trusted/
+│   └── delivery/
+│
+├── jars/
+│   └── postgresql-42.7.4.jar
+│
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+
 ```
 
-## Pipeline
+## 5. Banco de dados
+
+Foi utilizado um PostgreSQL dedicado ao pipeline da Atividade 5.
+
+Banco:
+
+eedb022_a5
+
+Schemas:
+
+raw
+trusted
+delivery
+
+O fluxo de dados é:
+
+raw
+ │
+ ▼
+trusted
+ │
+ ▼
+delivery
+
+As principais tabelas/modelos são:
+
+Trusted
+trusted.trusted_bancos
+trusted.trusted_empregados
+trusted.trusted_reclamacoes
+Delivery
+delivery.delivery_final
+
+
+## 6. Resultado final
 
 Inserir texto
 
 
-## Resultado final
-
-Inserir texto
-
-
-## Reprodução
+## 7. Reprodução
 
 ```bash
 # 1. Verificar Versão Docker e Docker Compose
@@ -301,15 +382,82 @@ Database:   eedb022_a5
 Username:   postgres
 Password:   postgres
 
+# 36. Testar conexão pelo DataHub
+Opção >> Testar Conexão
+
+# 37. DataHub - Definir nome da fonte de dados
+PostgreSQL - eEDB-022 - Atividade 5
+
+# 38. DataHub - Executar o shedule
+Executar
+
+# 39. DataHub - Verificar Tabelas Catalogadas
+Pesquisar:
+- trusted_bancos
+- trusted_empregados
+- trusted_reclamacoes
+- delivery_final
+
+# 40. Baixar e Extrair Camadas da Imagem de Ingestão
+docker pull acryldata/datahub-ingestion:v1.7.0
+
+# 41. Criar Arquivo de Configuração 'dbt/datahub_dbt.yml'
+dbt\datahub_dbt.yml
+
+# 42. Testar Arquivo de Ingestão
+docker run --rm `
+  -v "C:\Users\ferna\Documents\Github\eEDB-022\atividade_05\dbt:/dbt" `
+  acryldata/datahub-ingestion:v1.7.0 `
+  ingest run -c /dbt/datahub_dbt.yml --dry-run`
+
+# 43. Executar Ingestão para DataHub
+docker run --rm `
+  -v "C:\Users\ferna\Documents\Github\eEDB-022\atividade_05\dbt:/dbt" `
+  acryldata/datahub-ingestion:v1.7.0 `
+  ingest run -c /dbt/datahub_dbt.yml `
+
+# 44. DataHub - Validar Lineage de 'trusted_bancos'
 
 
 
 ```
+## 8. Evidências
 
 
-## Conclusão e Considerações
 
-Inserir texto
+## 9. Conclusão e Considerações
 
+A Atividade 5 implementou um pipeline de dados integrado utilizando Airflow como orquestrador, PostgreSQL como banco de dados, dbt para transformação, Great Expectations para validação da qualidade e DataHub para catalogação e gerenciamento dos metadados.
+
+O pipeline principal foi estruturado da seguinte forma:
+
+Ingestão
+   ↓
+RAW
+   ↓
+De/Para
+   ↓
+Trusted
+   ↓
+Delivery
+   ↓
+Quality Check
+   ↓
+Parquet
+   ↓
+DataHub
+
+Foram validadas as principais etapas de execução do ambiente, incluindo:
+
+funcionamento do Docker;
+execução do Airflow;
+conexão com PostgreSQL;
+execução do dbt;
+geração do manifesto dbt;
+criação dos modelos Trusted;
+criação do modelo Delivery;
+exportação para Parquet;
+catalogação das tabelas no DataHub;
+ingestão dos metadados dbt no DataHub.
 
 

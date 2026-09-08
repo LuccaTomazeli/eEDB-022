@@ -1592,3 +1592,60 @@ drop table if exists "eedb022_a5"."delivery"."delivery_final__dbt_backup" cascad
 [0m21:01:24.184784 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x77d4cb2e73f0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x77d4cb4adef0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x77d4cb2a61b0>]}
 [0m21:01:24.186992 [debug] [MainThread]: Flushing usage events
 [0m21:01:25.036038 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m15:40:47.441476 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa78fcad0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa64ffed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa64ffb10>]}
+
+
+============================== 15:40:47.651532 | 8fd92ff7-1de5-4109-b7d6-5b85b0a66287 ==============================
+[0m15:40:47.651532 [info ] [MainThread]: Running with dbt=1.12.3
+[0m15:40:47.655415 [debug] [MainThread]: running dbt with arguments {'partial_parse': 'True', 'warn_error': 'None', 'introspect': 'True', 'quiet': 'False', 'no_print': 'None', 'use_colors': 'True', 'cache_selected_only': 'False', 'hints_enabled': 'True', 'printer_width': '80', 'version_check': 'True', 'target_path': 'None', 'send_anonymous_usage_stats': 'True', 'maximum_seed_size_mib': '1', 'debug': 'False', 'static_parser': 'True', 'log_path': '/opt/atividade_05/dbt/logs', 'fail_fast': 'False', 'write_json': 'True', 'use_experimental_parser': 'False', 'log_cache_events': 'False', 'indirect_selection': 'eager', 'profiles_dir': '.', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'invocation_command': 'dbt debug --profiles-dir .', 'empty': 'None', 'log_format': 'default'}
+[0m15:40:48.302675 [info ] [MainThread]: dbt version: 1.12.3
+[0m15:40:48.314652 [info ] [MainThread]: python version: 3.13.14
+[0m15:40:48.331299 [info ] [MainThread]: python path: /home/airflow/.local/bin/python
+[0m15:40:48.341619 [info ] [MainThread]: os info: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.36
+[0m15:40:49.060552 [info ] [MainThread]: Using profiles dir at .
+[0m15:40:49.063117 [info ] [MainThread]: Using profiles.yml file at ./profiles.yml
+[0m15:40:49.066780 [info ] [MainThread]: Using dbt_project.yml file at /opt/atividade_05/dbt/dbt_project.yml
+[0m15:40:49.071768 [info ] [MainThread]: adapter type: postgres
+[0m15:40:49.074801 [info ] [MainThread]: adapter version: 1.11.0
+[0m15:40:49.603967 [info ] [MainThread]: Configuration:
+[0m15:40:49.606256 [info ] [MainThread]:   profiles.yml file [[32mOK found and valid[0m]
+[0m15:40:49.609144 [info ] [MainThread]:   dbt_project.yml file [[32mOK found and valid[0m]
+[0m15:40:49.613453 [info ] [MainThread]: Required dependencies:
+[0m15:40:49.617678 [debug] [MainThread]: Executing "git --help"
+[0m15:40:50.840320 [debug] [MainThread]: STDOUT: "b"usage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n           [--super-prefix=<path>] [--config-env=<name>=<envvar>]\n           <command> [<args>]\n\nThese are common Git commands used in various situations:\n\nstart a working area (see also: git help tutorial)\n   clone     Clone a repository into a new directory\n   init      Create an empty Git repository or reinitialize an existing one\n\nwork on the current change (see also: git help everyday)\n   add       Add file contents to the index\n   mv        Move or rename a file, a directory, or a symlink\n   restore   Restore working tree files\n   rm        Remove files from the working tree and from the index\n\nexamine the history and state (see also: git help revisions)\n   bisect    Use binary search to find the commit that introduced a bug\n   diff      Show changes between commits, commit and working tree, etc\n   grep      Print lines matching a pattern\n   log       Show commit logs\n   show      Show various types of objects\n   status    Show the working tree status\n\ngrow, mark and tweak your common history\n   branch    List, create, or delete branches\n   commit    Record changes to the repository\n   merge     Join two or more development histories together\n   rebase    Reapply commits on top of another base tip\n   reset     Reset current HEAD to the specified state\n   switch    Switch branches\n   tag       Create, list, delete or verify a tag object signed with GPG\n\ncollaborate (see also: git help workflows)\n   fetch     Download objects and refs from another repository\n   pull      Fetch from and integrate with another repository or a local branch\n   push      Update remote refs along with associated objects\n\n'git help -a' and 'git help -g' list available subcommands and some\nconcept guides. See 'git help <command>' or 'git help <concept>'\nto read about a specific subcommand or concept.\nSee 'git help git' for an overview of the system.\n""
+[0m15:40:50.844302 [debug] [MainThread]: STDERR: "b''"
+[0m15:40:50.857415 [info ] [MainThread]:  - git [[32mOK found[0m]
+
+[0m15:40:50.864887 [info ] [MainThread]: Connection:
+[0m15:40:50.868378 [info ] [MainThread]:   host: pipeline-postgres
+[0m15:40:50.974897 [info ] [MainThread]:   port: 5432
+[0m15:40:51.038698 [info ] [MainThread]:   user: postgres
+[0m15:40:51.109737 [info ] [MainThread]:   database: eedb022_a5
+[0m15:40:51.135910 [info ] [MainThread]:   schema: trusted
+[0m15:40:51.163821 [info ] [MainThread]:   connect_timeout: 10
+[0m15:40:51.205826 [info ] [MainThread]:   role: None
+[0m15:40:51.209785 [info ] [MainThread]:   search_path: None
+[0m15:40:51.232544 [info ] [MainThread]:   keepalives_idle: 0
+[0m15:40:51.235005 [info ] [MainThread]:   sslmode: None
+[0m15:40:51.237716 [info ] [MainThread]:   sslcert: None
+[0m15:40:51.261140 [info ] [MainThread]:   sslkey: None
+[0m15:40:51.289202 [info ] [MainThread]:   sslrootcert: None
+[0m15:40:51.314037 [info ] [MainThread]:   application_name: dbt
+[0m15:40:51.338686 [info ] [MainThread]:   autocommit: False
+[0m15:40:51.430953 [info ] [MainThread]:   retries: 1
+[0m15:40:51.466689 [info ] [MainThread]: Registered adapter: postgres=1.11.0
+[0m15:40:54.778009 [debug] [MainThread]: Acquiring new postgres connection 'debug'
+[0m15:40:58.501471 [debug] [MainThread]: Using postgres connection "debug"
+[0m15:40:58.536715 [debug] [MainThread]: On debug: select 1 as id
+[0m15:40:58.569806 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m15:40:59.254526 [debug] [MainThread]: SQL status: SELECT 1 in 0.685 seconds
+[0m15:40:59.269955 [debug] [MainThread]: On debug: Close
+[0m15:40:59.284936 [info ] [MainThread]:   Connection test: [[32mOK connection ok[0m]
+
+[0m15:40:59.328505 [info ] [MainThread]: [32mAll checks passed![0m
+[0m15:40:59.433503 [debug] [MainThread]: Resource report: {"command_name": "debug", "command_success": true, "command_wall_clock_time": 12.947806, "process_in_blocks": "11858", "process_kernel_time": 11.790315, "process_mem_max_rss": "134580", "process_out_blocks": "5480", "process_user_time": 21.00912}
+[0m15:40:59.623544 [debug] [MainThread]: Command `dbt debug` succeeded at 15:40:59.623083 after 13.14 seconds
+[0m15:40:59.696958 [debug] [MainThread]: Connection 'debug' was properly closed.
+[0m15:40:59.768744 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa63edf30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa6e8b410>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa61b2580>]}
+[0m15:40:59.782353 [debug] [MainThread]: Flushing usage events
+[0m15:41:07.757765 [debug] [MainThread]: An error was encountered while trying to flush usage events

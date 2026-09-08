@@ -1,0 +1,12 @@
+source:
+  type: dbt
+  config:
+    manifest_path: /dbt/target/manifest.json
+    run_results_paths:
+      - /dbt/target/run_results.json
+    target_platform: postgres
+
+sink:
+  type: datahub-rest
+  config:
+    server: http://host.docker.internal:8081
