@@ -1,0 +1,15 @@
+name: 'eedb022_dbt'
+
+version: '1.0.0'
+
+profile: 'eedb022_dbt'
+
+model-paths:
+  - models
+
+macro-paths:
+  - macros
+
+models:
+  eedb022_dbt:
+    +materialized: table
