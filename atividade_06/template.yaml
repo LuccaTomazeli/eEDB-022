@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Atividade 06 - ingestao S3, SQS, Lambda e RDS
+
+Parameters:
+  RdsClusterArn:
+    Type: String
+    Description: ARN do cluster Aurora habilitado para a RDS Data API.
+  RdsSecretArn:
+    Type: String
+    Description: ARN do segredo com as credenciais do banco.
+  RdsDatabase:
+    Type: String
+    Default: postgres
+
+Resources:
+  OrigemBucket:
+    Type: AWS::S3::Bucket
+
+  DestinoBucket:
+    Type: AWS::S3::Bucket
+
+  IngestaoDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+
+  IngestaoQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt IngestaoDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  ProdutorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_s3_para_sqs.handler
+      Runtime: python3.12
+      Timeout: 60
+      MemorySize: 256
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref IngestaoQueue
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref OrigemBucket
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt IngestaoQueue.QueueName
+      Events:
+        ObjetoCriado:
+          Type: S3
+          Properties:
+            Bucket: !Ref OrigemBucket
+            Events: s3:ObjectCreated:*
+
+  ConsumidorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_consumidor.handler
+      Runtime: python3.12
+      Timeout: 120
+      MemorySize: 512
+      Environment:
+        Variables:
+          RDS_CLUSTER_ARN: !Ref RdsClusterArn
+          RDS_SECRET_ARN: !Ref RdsSecretArn
+          RDS_DATABASE: !Ref RdsDatabase
+          DESTINATION_BUCKET: !Ref DestinoBucket
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !GetAtt IngestaoQueue.QueueName
+        - S3ReadPolicy:
+            BucketName: !Ref OrigemBucket
+        - S3WritePolicy:
+            BucketName: !Ref DestinoBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - rds-data:ExecuteStatement
+              Resource: !Ref RdsClusterArn
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref RdsSecretArn
+      Events:
+        MensagemRecebida:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt IngestaoQueue.Arn
+            BatchSize: 10
+
+Outputs:
+  OrigemBucket:
+    Value: !Ref OrigemBucket
+  DestinoBucket:
+    Value: !Ref DestinoBucket
+  IngestaoQueueUrl:
+    Value: !Ref IngestaoQueue
+  IngestaoQueueArn:
+    Value: !GetAtt IngestaoQueue.Arn

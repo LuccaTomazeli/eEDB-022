@@ -1,0 +1,1 @@
+# boto3 e botocore ja sao fornecidos pelo runtime Python da AWS Lambda.

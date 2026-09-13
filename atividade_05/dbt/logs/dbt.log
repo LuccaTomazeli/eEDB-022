@@ -1649,3 +1649,400 @@ drop table if exists "eedb022_a5"."delivery"."delivery_final__dbt_backup" cascad
 [0m15:40:59.768744 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa63edf30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa6e8b410>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7eefa61b2580>]}
 [0m15:40:59.782353 [debug] [MainThread]: Flushing usage events
 [0m15:41:07.757765 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m13:22:04.259855 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181ffd8bcb0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe82bed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe82bb10>]}
+
+
+============================== 13:22:04.301485 | b420b204-7a5b-4dc6-8698-0f10ae37fe80 ==============================
+[0m13:22:04.301485 [info ] [MainThread]: Running with dbt=1.12.4
+[0m13:22:04.302043 [debug] [MainThread]: running dbt with arguments {'target_path': 'None', 'log_path': '/opt/atividade_05/dbt/logs', 'partial_parse': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'hints_enabled': 'True', 'use_experimental_parser': 'False', 'indirect_selection': 'eager', 'quiet': 'False', 'fail_fast': 'False', 'write_json': 'True', 'log_cache_events': 'False', 'profiles_dir': '.', 'version_check': 'True', 'log_format': 'default', 'introspect': 'True', 'warn_error': 'None', 'invocation_command': 'dbt run --profiles-dir .', 'printer_width': '80', 'send_anonymous_usage_stats': 'True', 'no_print': 'None', 'debug': 'False', 'use_colors': 'True', 'static_parser': 'True', 'cache_selected_only': 'False', 'maximum_seed_size_mib': '1', 'empty': 'False'}
+[0m13:22:04.493228 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181ff8723f0>]}
+[0m13:22:04.607304 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181ffec2690>]}
+[0m13:22:04.613986 [info ] [MainThread]: Registered adapter: postgres=1.11.0
+[0m13:22:04.702050 [debug] [MainThread]: checksum: f7d91bf5d06f534f75aa29295c0b760d53a6dd182e722e346c7f9279ba01b3a0, vars: {}, profile: eedb022_dbt, target: dev, version: 1.12.4
+[0m13:22:04.771876 [info ] [MainThread]: Unable to do partial parsing because of a version mismatch
+[0m13:22:04.772536 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'partial_parser', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe7bb250>]}
+[0m13:22:05.475414 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'load_project', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe47cd70>]}
+[0m13:22:05.542611 [debug] [MainThread]: Wrote artifact WritableManifest to /opt/atividade_05/dbt/target/manifest.json
+[0m13:22:05.555020 [debug] [MainThread]: Wrote artifact SemanticManifest to /opt/atividade_05/dbt/target/semantic_manifest.json
+[0m13:22:05.599124 [debug] [MainThread]: Wrote artifact OsiDocument to /opt/atividade_05/dbt/target/osi_document.json
+[0m13:22:05.651914 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'resource_counts', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe2afaf0>]}
+[0m13:22:05.652448 [info ] [MainThread]: Found 4 models, 478 macros
+[0m13:22:05.652886 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fd964460>]}
+[0m13:22:05.663103 [info ] [MainThread]: 
+[0m13:22:05.663666 [info ] [MainThread]: Concurrency: 4 threads (target='dev')
+[0m13:22:05.664114 [info ] [MainThread]: 
+[0m13:22:05.664842 [debug] [MainThread]: Acquiring new postgres connection 'master'
+[0m13:22:05.669171 [debug] [ThreadPool]: Acquiring new postgres connection 'list_eedb022_a5'
+[0m13:22:05.675020 [debug] [ThreadPool]: Acquiring new postgres connection 'list_eedb022_a5'
+[0m13:22:05.743552 [debug] [ThreadPool]: Using postgres connection "list_eedb022_a5"
+[0m13:22:05.743971 [debug] [ThreadPool]: Using postgres connection "list_eedb022_a5"
+[0m13:22:05.744265 [debug] [ThreadPool]: On list_eedb022_a5: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "connection_name": "list_eedb022_a5"} */
+
+    select distinct nspname from pg_namespace
+  
+[0m13:22:05.744670 [debug] [ThreadPool]: On list_eedb022_a5: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "connection_name": "list_eedb022_a5"} */
+
+    select distinct nspname from pg_namespace
+  
+[0m13:22:05.745087 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m13:22:05.745466 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m13:22:05.754622 [debug] [ThreadPool]: SQL status: SELECT 7 in 0.009 seconds
+[0m13:22:05.755052 [debug] [ThreadPool]: SQL status: SELECT 7 in 0.010 seconds
+[0m13:22:05.756201 [debug] [ThreadPool]: On list_eedb022_a5: Close
+[0m13:22:05.757251 [debug] [ThreadPool]: On list_eedb022_a5: Close
+[0m13:22:05.760514 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_eedb022_a5, now list_eedb022_a5_trusted)
+[0m13:22:05.761143 [debug] [ThreadPool]: Re-using an available connection from the pool (formerly list_eedb022_a5, now list_eedb022_a5_delivery)
+[0m13:22:05.766983 [debug] [ThreadPool]: Using postgres connection "list_eedb022_a5_trusted"
+[0m13:22:05.768306 [debug] [ThreadPool]: Using postgres connection "list_eedb022_a5_delivery"
+[0m13:22:05.768830 [debug] [ThreadPool]: On list_eedb022_a5_trusted: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "connection_name": "list_eedb022_a5_trusted"} */
+select
+      'eedb022_a5' as database,
+      tablename as name,
+      schemaname as schema,
+      'table' as type
+    from pg_tables
+    where schemaname ilike 'trusted'
+    union all
+    select
+      'eedb022_a5' as database,
+      viewname as name,
+      schemaname as schema,
+      'view' as type
+    from pg_views
+    where schemaname ilike 'trusted'
+    union all
+    select
+      'eedb022_a5' as database,
+      matviewname as name,
+      schemaname as schema,
+      'materialized_view' as type
+    from pg_matviews
+    where schemaname ilike 'trusted'
+    union all
+    select distinct
+     'eedb022_a5' as database,
+     proname as name,
+     ns.nspname as schema,
+     'function' as type
+    from pg_proc
+     join pg_namespace as ns on pronamespace = ns.oid
+    where ns.nspname ilike 'trusted'
+  
+[0m13:22:05.769546 [debug] [ThreadPool]: On list_eedb022_a5_delivery: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "connection_name": "list_eedb022_a5_delivery"} */
+select
+      'eedb022_a5' as database,
+      tablename as name,
+      schemaname as schema,
+      'table' as type
+    from pg_tables
+    where schemaname ilike 'delivery'
+    union all
+    select
+      'eedb022_a5' as database,
+      viewname as name,
+      schemaname as schema,
+      'view' as type
+    from pg_views
+    where schemaname ilike 'delivery'
+    union all
+    select
+      'eedb022_a5' as database,
+      matviewname as name,
+      schemaname as schema,
+      'materialized_view' as type
+    from pg_matviews
+    where schemaname ilike 'delivery'
+    union all
+    select distinct
+     'eedb022_a5' as database,
+     proname as name,
+     ns.nspname as schema,
+     'function' as type
+    from pg_proc
+     join pg_namespace as ns on pronamespace = ns.oid
+    where ns.nspname ilike 'delivery'
+  
+[0m13:22:05.769925 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m13:22:05.770404 [debug] [ThreadPool]: Opening a new connection, currently in state closed
+[0m13:22:05.804009 [debug] [ThreadPool]: SQL status: SELECT 0 in 0.033 seconds
+[0m13:22:05.804532 [debug] [ThreadPool]: SQL status: SELECT 0 in 0.035 seconds
+[0m13:22:05.805627 [debug] [ThreadPool]: On list_eedb022_a5_delivery: ROLLBACK
+[0m13:22:05.806580 [debug] [ThreadPool]: On list_eedb022_a5_trusted: ROLLBACK
+[0m13:22:05.807154 [debug] [ThreadPool]: On list_eedb022_a5_delivery: Close
+[0m13:22:05.807372 [debug] [ThreadPool]: On list_eedb022_a5_trusted: Close
+[0m13:22:05.811235 [debug] [MainThread]: Using postgres connection "master"
+[0m13:22:05.811818 [debug] [MainThread]: On master: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "connection_name": "master"} */
+select distinct
+        dependent_namespace.nspname as dependent_schema,
+        dependent_class.relname as dependent_name,
+        referenced_namespace.nspname as referenced_schema,
+        referenced_class.relname as referenced_name
+
+    -- Query for views: views are entries in pg_class with an entry in pg_rewrite, but we avoid
+    -- a seq scan on pg_rewrite by leveraging the fact there is an "internal" row in pg_depend for
+    -- the view...
+    from pg_class as dependent_class
+    join pg_namespace as dependent_namespace on dependent_namespace.oid = dependent_class.relnamespace
+    join pg_depend as dependent_depend on dependent_depend.refobjid = dependent_class.oid
+        and dependent_depend.classid = 'pg_rewrite'::regclass
+        and dependent_depend.refclassid = 'pg_class'::regclass
+        and dependent_depend.deptype = 'i'
+
+    -- ... and via pg_depend (that has a row per column, hence the need for "distinct" above, and
+    -- making sure to exclude the internal row to avoid a view appearing to depend on itself)...
+    join pg_depend as joining_depend on joining_depend.objid = dependent_depend.objid
+        and joining_depend.classid = 'pg_rewrite'::regclass
+        and joining_depend.refclassid = 'pg_class'::regclass
+        and joining_depend.refobjid != dependent_depend.refobjid
+
+    -- ... we can find the tables they query from in pg_class, but excluding system tables. Note we
+    -- don't need need to exclude _dependent_ system tables, because they only query from other
+    -- system tables, and so are automatically excluded by excluding _referenced_ system tables
+    join pg_class as referenced_class on referenced_class.oid = joining_depend.refobjid
+    join pg_namespace as referenced_namespace on referenced_namespace.oid = referenced_class.relnamespace
+        and referenced_namespace.nspname != 'information_schema'
+        and referenced_namespace.nspname not like 'pg\_%'
+
+    order by
+        dependent_schema, dependent_name, referenced_schema, referenced_name;
+[0m13:22:05.812216 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m13:22:05.821544 [debug] [MainThread]: SQL status: SELECT 0 in 0.009 seconds
+[0m13:22:05.822942 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'runnable_timing', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fd1bd850>]}
+[0m13:22:05.823541 [debug] [MainThread]: On master: ROLLBACK
+[0m13:22:05.824030 [debug] [MainThread]: On master: COMMIT
+[0m13:22:05.824463 [debug] [MainThread]: Using postgres connection "master"
+[0m13:22:05.824872 [debug] [MainThread]: On master: COMMIT
+[0m13:22:05.825411 [debug] [MainThread]: SQL status: COMMIT in 0.000 seconds
+[0m13:22:05.825746 [debug] [MainThread]: On master: Close
+[0m13:22:05.830061 [debug] [Thread-1 (]: Began running node model.eedb022_dbt.trusted_bancos
+[0m13:22:05.830444 [debug] [Thread-3 (]: Began running node model.eedb022_dbt.trusted_reclamacoes
+[0m13:22:05.830945 [debug] [Thread-2 (]: Began running node model.eedb022_dbt.trusted_empregados
+[0m13:22:05.831377 [info ] [Thread-1 (]: 1 of 4 START sql table model trusted.trusted_bancos ............................ [RUN]
+[0m13:22:05.831969 [info ] [Thread-3 (]: 3 of 4 START sql table model trusted.trusted_reclamacoes ....................... [RUN]
+[0m13:22:05.832504 [info ] [Thread-2 (]: 2 of 4 START sql table model trusted.trusted_empregados ........................ [RUN]
+[0m13:22:05.833084 [debug] [Thread-1 (]: Re-using an available connection from the pool (formerly list_eedb022_a5_trusted, now model.eedb022_dbt.trusted_bancos)
+[0m13:22:05.833623 [debug] [Thread-3 (]: Acquiring new postgres connection 'model.eedb022_dbt.trusted_reclamacoes'
+[0m13:22:05.834042 [debug] [Thread-2 (]: Re-using an available connection from the pool (formerly list_eedb022_a5_delivery, now model.eedb022_dbt.trusted_empregados)
+[0m13:22:05.834553 [debug] [Thread-1 (]: Began compiling node model.eedb022_dbt.trusted_bancos
+[0m13:22:05.835028 [debug] [Thread-3 (]: Began compiling node model.eedb022_dbt.trusted_reclamacoes
+[0m13:22:05.835447 [debug] [Thread-2 (]: Began compiling node model.eedb022_dbt.trusted_empregados
+[0m13:22:05.838998 [debug] [Thread-1 (]: Writing injected SQL for node "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.839708 [debug] [Thread-3 (]: Writing injected SQL for node "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.841091 [debug] [Thread-2 (]: Writing injected SQL for node "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.846352 [debug] [Thread-1 (]: Began executing node model.eedb022_dbt.trusted_bancos
+[0m13:22:05.846824 [debug] [Thread-2 (]: Began executing node model.eedb022_dbt.trusted_empregados
+[0m13:22:05.883807 [debug] [Thread-2 (]: Writing runtime sql for node "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.885883 [debug] [Thread-1 (]: Writing runtime sql for node "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.887178 [debug] [Thread-3 (]: Began executing node model.eedb022_dbt.trusted_reclamacoes
+[0m13:22:05.889506 [debug] [Thread-3 (]: Writing runtime sql for node "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.897210 [debug] [Thread-2 (]: Using postgres connection "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.897746 [debug] [Thread-1 (]: Using postgres connection "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.898076 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_empregados"} */
+
+  
+    
+
+  create  table "eedb022_a5"."trusted"."trusted_empregados__dbt_tmp"
+  
+  
+    as
+  
+  (
+    SELECT
+    UPPER(TRIM("Nome")) AS nome,
+    AVG("Geral") AS nota_geral,
+    AVG("Remuneração e benefícios") AS nota_remuneracao,
+    AVG("Recomendam para outras pessoas(%)") AS pct_recomendam
+FROM raw.empregados
+WHERE "Nome" IS NOT NULL AND TRIM("Nome") != ''
+GROUP BY UPPER(TRIM("Nome"))
+  );
+  
+[0m13:22:05.898588 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_bancos"} */
+
+  
+    
+
+  create  table "eedb022_a5"."trusted"."trusted_bancos__dbt_tmp"
+  
+  
+    as
+  
+  (
+    SELECT DISTINCT
+    LPAD(CAST(b."CNPJ" AS TEXT), 8, '0') AS cnpj,
+    COALESCE(d.nome, b."Nome") AS nome_completo,
+    UPPER(TRIM(SPLIT_PART(b."Nome", '-', 1))) AS nome_busca,
+    b."Segmento" AS segmento
+FROM raw.bancos b
+LEFT JOIN raw.depara_bcb d ON LPAD(CAST(b."CNPJ" AS TEXT), 8, '0') = d.cnpj
+WHERE b."CNPJ" IS NOT NULL AND b."CNPJ" != 0
+  );
+  
+[0m13:22:05.899011 [debug] [Thread-2 (]: Opening a new connection, currently in state closed
+[0m13:22:05.899385 [debug] [Thread-1 (]: Opening a new connection, currently in state closed
+[0m13:22:05.906849 [debug] [Thread-3 (]: Using postgres connection "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.907499 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_reclamacoes"} */
+
+  
+    
+
+  create  table "eedb022_a5"."trusted"."trusted_reclamacoes__dbt_tmp"
+  
+  
+    as
+  
+  (
+    SELECT DISTINCT
+    "Ano" AS ano,
+    "Trimestre" AS trimestre,
+    LPAD(TRIM("CNPJ IF"), 8, '0') AS cnpj,
+    "Instituição financeira" AS instituicao,
+    "Quantidade total de reclamações" AS qtd_reclamacoes
+FROM raw.reclamacoes
+WHERE "CNPJ IF" IS NOT NULL AND TRIM("CNPJ IF") != ''
+  );
+  
+[0m13:22:05.907946 [debug] [Thread-3 (]: Opening a new connection, currently in state init
+[0m13:22:05.912026 [debug] [Thread-2 (]: SQL status: SELECT 32 in 0.013 seconds
+[0m13:22:05.918668 [debug] [Thread-2 (]: Using postgres connection "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.919014 [debug] [Thread-1 (]: SQL status: SELECT 1472 in 0.020 seconds
+[0m13:22:05.919386 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_empregados"} */
+alter table "eedb022_a5"."trusted"."trusted_empregados__dbt_tmp" rename to "trusted_empregados"
+[0m13:22:05.921050 [debug] [Thread-1 (]: Using postgres connection "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.921672 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_bancos"} */
+alter table "eedb022_a5"."trusted"."trusted_bancos__dbt_tmp" rename to "trusted_bancos"
+[0m13:22:05.921930 [debug] [Thread-2 (]: SQL status: ALTER TABLE in 0.000 seconds
+[0m13:22:05.927867 [debug] [Thread-3 (]: SQL status: SELECT 437 in 0.020 seconds
+[0m13:22:05.935087 [debug] [Thread-3 (]: Using postgres connection "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.936640 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: COMMIT
+[0m13:22:05.936968 [debug] [Thread-1 (]: SQL status: ALTER TABLE in 0.015 seconds
+[0m13:22:05.937261 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_reclamacoes"} */
+alter table "eedb022_a5"."trusted"."trusted_reclamacoes__dbt_tmp" rename to "trusted_reclamacoes"
+[0m13:22:05.937722 [debug] [Thread-2 (]: Using postgres connection "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.939098 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: COMMIT
+[0m13:22:05.939792 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: COMMIT
+[0m13:22:05.940131 [debug] [Thread-3 (]: SQL status: ALTER TABLE in 0.001 seconds
+[0m13:22:05.940398 [debug] [Thread-1 (]: Using postgres connection "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.941709 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: COMMIT
+[0m13:22:05.942124 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: COMMIT
+[0m13:22:05.942522 [debug] [Thread-3 (]: Using postgres connection "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.943079 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: COMMIT
+[0m13:22:05.972785 [debug] [Thread-2 (]: SQL status: COMMIT in 0.032 seconds
+[0m13:22:05.976727 [debug] [Thread-2 (]: Applying DROP to: "eedb022_a5"."trusted"."trusted_empregados__dbt_backup"
+[0m13:22:05.977128 [debug] [Thread-1 (]: SQL status: COMMIT in 0.034 seconds
+[0m13:22:05.977461 [debug] [Thread-3 (]: SQL status: COMMIT in 0.034 seconds
+[0m13:22:05.980423 [debug] [Thread-2 (]: Using postgres connection "model.eedb022_dbt.trusted_empregados"
+[0m13:22:05.981894 [debug] [Thread-1 (]: Applying DROP to: "eedb022_a5"."trusted"."trusted_bancos__dbt_backup"
+[0m13:22:05.982925 [debug] [Thread-3 (]: Applying DROP to: "eedb022_a5"."trusted"."trusted_reclamacoes__dbt_backup"
+[0m13:22:05.983387 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_empregados"} */
+drop table if exists "eedb022_a5"."trusted"."trusted_empregados__dbt_backup" cascade
+[0m13:22:05.984104 [debug] [Thread-1 (]: Using postgres connection "model.eedb022_dbt.trusted_bancos"
+[0m13:22:05.985287 [debug] [Thread-3 (]: Using postgres connection "model.eedb022_dbt.trusted_reclamacoes"
+[0m13:22:05.986031 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_bancos"} */
+drop table if exists "eedb022_a5"."trusted"."trusted_bancos__dbt_backup" cascade
+[0m13:22:05.986323 [debug] [Thread-2 (]: SQL status: DROP TABLE in 0.001 seconds
+[0m13:22:05.986579 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.trusted_reclamacoes"} */
+drop table if exists "eedb022_a5"."trusted"."trusted_reclamacoes__dbt_backup" cascade
+[0m13:22:05.988861 [debug] [Thread-2 (]: On model.eedb022_dbt.trusted_empregados: Close
+[0m13:22:05.989200 [debug] [Thread-1 (]: SQL status: DROP TABLE in 0.002 seconds
+[0m13:22:05.989763 [debug] [Thread-3 (]: SQL status: DROP TABLE in 0.000 seconds
+[0m13:22:05.991920 [debug] [Thread-1 (]: On model.eedb022_dbt.trusted_bancos: Close
+[0m13:22:05.993038 [debug] [Thread-3 (]: On model.eedb022_dbt.trusted_reclamacoes: Close
+[0m13:22:05.996722 [debug] [Thread-2 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fc9dccb0>]}
+[0m13:22:05.997087 [debug] [Thread-1 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fc1a4eb0>]}
+[0m13:22:05.997380 [debug] [Thread-3 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181ffa01090>]}
+[0m13:22:05.997967 [info ] [Thread-2 (]: 2 of 4 OK created sql table model trusted.trusted_empregados ................... [[32mSELECT 32[0m in 0.16s]
+[0m13:22:05.998785 [info ] [Thread-1 (]: 1 of 4 OK created sql table model trusted.trusted_bancos ....................... [[32mSELECT 1472[0m in 0.16s]
+[0m13:22:05.999429 [info ] [Thread-3 (]: 3 of 4 OK created sql table model trusted.trusted_reclamacoes .................. [[32mSELECT 437[0m in 0.16s]
+[0m13:22:05.999966 [debug] [Thread-2 (]: Finished running node model.eedb022_dbt.trusted_empregados
+[0m13:22:06.000521 [debug] [Thread-1 (]: Finished running node model.eedb022_dbt.trusted_bancos
+[0m13:22:06.001027 [debug] [Thread-3 (]: Finished running node model.eedb022_dbt.trusted_reclamacoes
+[0m13:22:06.002662 [debug] [Thread-4 (]: Began running node model.eedb022_dbt.delivery_final
+[0m13:22:06.003096 [info ] [Thread-4 (]: 4 of 4 START sql table model delivery.delivery_final ........................... [RUN]
+[0m13:22:06.003713 [debug] [Thread-4 (]: Acquiring new postgres connection 'model.eedb022_dbt.delivery_final'
+[0m13:22:06.004153 [debug] [Thread-4 (]: Began compiling node model.eedb022_dbt.delivery_final
+[0m13:22:06.006382 [debug] [Thread-4 (]: Writing injected SQL for node "model.eedb022_dbt.delivery_final"
+[0m13:22:06.017149 [debug] [Thread-4 (]: Began executing node model.eedb022_dbt.delivery_final
+[0m13:22:06.019391 [debug] [Thread-4 (]: Writing runtime sql for node "model.eedb022_dbt.delivery_final"
+[0m13:22:06.039445 [debug] [Thread-4 (]: Using postgres connection "model.eedb022_dbt.delivery_final"
+[0m13:22:06.039974 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.delivery_final"} */
+
+  
+    
+
+  create  table "eedb022_a5"."delivery"."delivery_final__dbt_tmp"
+  
+  
+    as
+  
+  (
+    
+
+WITH reclamacoes_agg AS (
+    SELECT
+        cnpj,
+        SUM(qtd_reclamacoes) AS total_reclamacoes
+    FROM "eedb022_a5"."trusted"."trusted_reclamacoes"
+    GROUP BY cnpj
+)
+
+SELECT
+    b.cnpj,
+    b.nome_completo AS nome,
+    b.segmento,
+    COALESCE(r.total_reclamacoes, 0) AS total_reclamacoes,
+    e.nota_geral,
+    e.nota_remuneracao,
+    e.pct_recomendam
+FROM "eedb022_a5"."trusted"."trusted_bancos" b
+LEFT JOIN reclamacoes_agg r ON b.cnpj = r.cnpj
+LEFT JOIN "eedb022_a5"."trusted"."trusted_empregados" e ON b.nome_busca = e.nome
+  );
+  
+[0m13:22:06.040319 [debug] [Thread-4 (]: Opening a new connection, currently in state init
+[0m13:22:06.060202 [debug] [Thread-4 (]: SQL status: SELECT 1472 in 0.020 seconds
+[0m13:22:06.062681 [debug] [Thread-4 (]: Using postgres connection "model.eedb022_dbt.delivery_final"
+[0m13:22:06.063144 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.delivery_final"} */
+alter table "eedb022_a5"."delivery"."delivery_final__dbt_tmp" rename to "delivery_final"
+[0m13:22:06.063909 [debug] [Thread-4 (]: SQL status: ALTER TABLE in 0.000 seconds
+[0m13:22:06.065171 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: COMMIT
+[0m13:22:06.065720 [debug] [Thread-4 (]: Using postgres connection "model.eedb022_dbt.delivery_final"
+[0m13:22:06.066135 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: COMMIT
+[0m13:22:06.102365 [debug] [Thread-4 (]: SQL status: COMMIT in 0.036 seconds
+[0m13:22:06.104878 [debug] [Thread-4 (]: Applying DROP to: "eedb022_a5"."delivery"."delivery_final__dbt_backup"
+[0m13:22:06.105655 [debug] [Thread-4 (]: Using postgres connection "model.eedb022_dbt.delivery_final"
+[0m13:22:06.106059 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: /* {"app": "dbt", "dbt_version": "1.12.4", "profile_name": "eedb022_dbt", "target_name": "dev", "node_id": "model.eedb022_dbt.delivery_final"} */
+drop table if exists "eedb022_a5"."delivery"."delivery_final__dbt_backup" cascade
+[0m13:22:06.106828 [debug] [Thread-4 (]: SQL status: DROP TABLE in 0.000 seconds
+[0m13:22:06.108136 [debug] [Thread-4 (]: On model.eedb022_dbt.delivery_final: Close
+[0m13:22:06.108896 [debug] [Thread-4 (]: Sending event: {'category': 'dbt', 'action': 'run_model', 'label': 'b420b204-7a5b-4dc6-8698-0f10ae37fe80', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fd16db70>]}
+[0m13:22:06.109474 [info ] [Thread-4 (]: 4 of 4 OK created sql table model delivery.delivery_final ...................... [[32mSELECT 1472[0m in 0.11s]
+[0m13:22:06.110294 [debug] [Thread-4 (]: Finished running node model.eedb022_dbt.delivery_final
+[0m13:22:06.112248 [debug] [MainThread]: On master: COMMIT
+[0m13:22:06.112618 [debug] [MainThread]: Using postgres connection "master"
+[0m13:22:06.113003 [debug] [MainThread]: On master: COMMIT
+[0m13:22:06.113361 [debug] [MainThread]: Opening a new connection, currently in state closed
+[0m13:22:06.119635 [debug] [MainThread]: SQL status: COMMIT in 0.006 seconds
+[0m13:22:06.120169 [debug] [MainThread]: On master: Close
+[0m13:22:06.120792 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m13:22:06.121168 [debug] [MainThread]: Connection 'model.eedb022_dbt.trusted_empregados' was properly closed.
+[0m13:22:06.121532 [debug] [MainThread]: Connection 'model.eedb022_dbt.trusted_bancos' was properly closed.
+[0m13:22:06.121908 [debug] [MainThread]: Connection 'model.eedb022_dbt.trusted_reclamacoes' was properly closed.
+[0m13:22:06.122394 [debug] [MainThread]: Connection 'model.eedb022_dbt.delivery_final' was properly closed.
+[0m13:22:06.122958 [info ] [MainThread]: 
+[0m13:22:06.123479 [info ] [MainThread]: Finished running 4 table models in 0 hours 0 minutes and 0.46 seconds (0.46s).
+[0m13:22:06.124375 [debug] [MainThread]: Command end result
+[0m13:22:06.161167 [debug] [MainThread]: Wrote artifact WritableManifest to /opt/atividade_05/dbt/target/manifest.json
+[0m13:22:06.168638 [debug] [MainThread]: Wrote artifact SemanticManifest to /opt/atividade_05/dbt/target/semantic_manifest.json
+[0m13:22:06.174361 [debug] [MainThread]: Wrote artifact OsiDocument to /opt/atividade_05/dbt/target/osi_document.json
+[0m13:22:06.189756 [debug] [MainThread]: Wrote artifact RunExecutionResult to /opt/atividade_05/dbt/target/run_results.json
+[0m13:22:06.190277 [info ] [MainThread]: 
+[0m13:22:06.190712 [info ] [MainThread]: [32mCompleted successfully[0m
+[0m13:22:06.191190 [info ] [MainThread]: 
+[0m13:22:06.191657 [info ] [MainThread]: Done. PASS=4 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=4
+[0m13:22:06.192916 [debug] [MainThread]: Resource report: {"command_name": "run", "command_success": true, "command_wall_clock_time": 2.0084515, "process_in_blocks": "37896", "process_kernel_time": 0.340869, "process_mem_max_rss": "143656", "process_out_blocks": "4792", "process_user_time": 2.550361}
+[0m13:22:06.193376 [debug] [MainThread]: Command `dbt run` succeeded at 13:22:06.193295 after 2.01 seconds
+[0m13:22:06.193816 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fd155a90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fe943b30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7181fc592c90>]}
+[0m13:22:06.194269 [debug] [MainThread]: Flushing usage events
+[0m13:22:06.782174 [debug] [MainThread]: An error was encountered while trying to flush usage events
