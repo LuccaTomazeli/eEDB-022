@@ -12,6 +12,16 @@
       "Effect": "Allow",
       "Action": "sqs:SendMessage",
       "Resource": "arn:aws:sqs:us-east-1:115651887176:atividade-6-1-fila"
+    },
+    {
+      "Sid": "ConsumeRecordsFromQueue",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "arn:aws:sqs:us-east-1:115651887176:atividade-6-1-fila"
     }
   ]
 }

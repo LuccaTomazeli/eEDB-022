@@ -1,8 +1,10 @@
 .aws/
 .venv/
+.env
 .queue-url
 .lambda-role-arn
 lambda.zip
+consumer-lambda.zip
 lambda-response.json
 __pycache__/
 *.pyc

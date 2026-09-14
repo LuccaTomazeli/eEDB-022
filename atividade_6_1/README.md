@@ -1,4 +1,4 @@
-# Ingestao AWS: S3 -> Lambda -> SQS
+# Ingestao AWS: S3 -> Lambda -> SQS -> Lambda -> SQL
 
 Projeto academico de ingestao de registros JSON usando AWS S3, AWS Lambda, AWS SQS, IAM e CloudWatch.
 
@@ -11,11 +11,18 @@ Arquivo JSON no S3
 Lambda Python
         |
         v
-Fila SQS
+      Fila SQS
+        |
+        v
+      Lambda consumidora
+        |
+        v
+      Banco SQL (MySQL/MariaDB)
 ```
 
 A Lambda le uma lista de registros JSON no S3 e envia cada registro como uma mensagem individual para a fila SQS.
 Ela tambem aceita eventos de criacao de objetos no S3. O trigger automatico deste projeto observa somente o prefixo `entrada/`.
+      A Lambda consumidora e acionada pela fila SQS e executa uma consulta parametrizada na tabela `clientes` para cada mensagem.
 
 ## Recursos utilizados
 
@@ -27,6 +34,7 @@ Ela tambem aceita eventos de criacao de objetos no S3. O trigger automatico dest
 | Prefixo automatico | `entrada/` |
 | Fila SQS | `atividade-6-1-fila` |
 | Lambda | `atividade-6-1-ingestao` |
+| Lambda consumidora | `atividade-6-1-consumidor-sql` |
 | Role Lambda | `LabRole` |
 | Grupo de logs | `/aws/lambda/atividade-6-1-ingestao` |
 
@@ -67,12 +75,18 @@ atividade_6_1/
 |-- lambda/
 |   |-- lambda_function.py
 |   `-- requirements.txt
+|-- lambda_consumer/
+|   |-- lambda_function.py
+|   `-- requirements.txt
+|-- sql/schema.sql
 |-- scripts/
 |   |-- create-s3.ps1
 |   |-- create-sqs.ps1
 |   |-- create-iam.ps1
 |   |-- deploy-lambda.ps1
 |   |-- configure-s3-trigger.ps1
+|   |-- deploy-consumer-lambda.ps1
+|   |-- configure-sqs-consumer.ps1
 |   `-- receive-sqs.ps1
 |-- .gitignore
 `-- README.md
@@ -117,7 +131,10 @@ Em um ambiente profissional, crie uma Role propria com:
 
 - `s3:GetObject` para o objeto de entrada
 - `sqs:SendMessage` para a fila
+- `sqs:ReceiveMessage`, `sqs:DeleteMessage` e `sqs:GetQueueAttributes` para a Lambda consumidora
 - permissoes basicas de logs do CloudWatch
+
+Para banco privado, a Lambda consumidora tambem precisa estar em uma VPC com rota, security group e subnets que alcancem o MySQL/MariaDB.
 
 As policies de referencia estao em `iam/`.
 
@@ -188,6 +205,27 @@ O upload dispara a Lambda automaticamente. Para verificar as mensagens:
 
 Cada registro do JSON aparece como uma mensagem separada na fila.
 
+### 6. Configurar o banco SQL e o consumidor
+
+O schema de referencia esta em `sql/schema.sql`. Execute-o no MySQL/MariaDB e configure as credenciais apenas no ambiente local:
+
+```powershell
+$env:SQL_HOST = "seu-endpoint-rds"
+$env:SQL_PORT = "3306"
+$env:SQL_USER = "seu-usuario"
+$env:SQL_PASSWORD = "sua-senha"
+$env:SQL_DATABASE = "atividade"
+```
+
+Publique a Lambda e conecte-a a fila:
+
+```powershell
+.\scripts\deploy-consumer-lambda.ps1
+.\scripts\configure-sqs-consumer.ps1
+```
+
+Para cada mensagem, a Lambda executa `SELECT id, nome, email FROM clientes WHERE id = %s`. O resultado e registrado no CloudWatch. Mensagens invalidas sao devolvidas em `batchItemFailures` para retry; uma falha de conexao ou consulta SQL faz o lote inteiro falhar.
+
 ## CloudWatch Logs
 
 O grupo de logs e criado automaticamente pela Lambda:
@@ -195,6 +233,8 @@ O grupo de logs e criado automaticamente pela Lambda:
 ```text
 /aws/lambda/atividade-6-1-ingestao
 ```
+
+Os logs do consumidor ficam em `/aws/lambda/atividade-6-1-consumidor-sql`.
 
 Para verificar pelo AWS CLI:
 
