@@ -1,12 +1,15 @@
 param(
     [string]$FunctionName = "atividade-6-1-consumidor-sql",
     [string]$Region = "us-east-1",
-    [string]$RoleArn = "arn:aws:iam::115651887176:role/LabRole",
+    [string]$RoleArn = "",
     [string]$SqlHost = $env:SQL_HOST,
-    [string]$SqlPort = $(if ($env:SQL_PORT) { $env:SQL_PORT } else { "3306" }),
+    [string]$SqlPort = "3306",
     [string]$SqlUser = $env:SQL_USER,
     [string]$SqlPassword = $env:SQL_PASSWORD,
-    [string]$SqlDatabase = $env:SQL_DATABASE
+    [string]$SqlDatabase = $env:SQL_DATABASE,
+    [string]$S3Bucket = $env:S3_BUCKET,
+    [string]$S3OutputPrefix = $(if ($env:S3_OUTPUT_PREFIX) { $env:S3_OUTPUT_PREFIX } else { "processados" }),
+    [string]$S3EnrichedKey = $(if ($env:S3_ENRICHED_KEY) { $env:S3_ENRICHED_KEY } else { "enriquecidos/dados_enriquecidos.json" })
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,30 +19,29 @@ if (-not $env:AWS_SHARED_CREDENTIALS_FILE) {
     $env:AWS_SHARED_CREDENTIALS_FILE = Join-Path $PSScriptRoot "..\.aws\credentials"
 }
 
+$accountId = (aws sts get-caller-identity --query Account --output text).Trim()
+$RoleArn = if ($RoleArn) { $RoleArn } else { "arn:aws:iam::${accountId}:role/LabRole" }
+$S3Bucket = if ($S3Bucket) { $S3Bucket } else { "atividade-6-1-$accountId" }
+
 $envFile = Join-Path $PSScriptRoot "..\.env"
 if (Test-Path $envFile) {
     Get-Content $envFile | ForEach-Object {
         if ($_ -match '^\s*([^#=]+)\s*=\s*(.*)\s*$') {
-            [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim())
+            Set-Item -Path "Env:$($matches[1].Trim())" -Value $matches[2].Trim()
         }
     }
 }
 
+$S3Bucket = if ($env:S3_BUCKET) { $env:S3_BUCKET } else { $S3Bucket }
+$S3OutputPrefix = if ($env:S3_OUTPUT_PREFIX) { $env:S3_OUTPUT_PREFIX } else { $S3OutputPrefix }
+$S3EnrichedKey = if ($env:S3_ENRICHED_KEY) { $env:S3_ENRICHED_KEY } else { $S3EnrichedKey }
 $SqlHost = if ($env:SQL_HOST) { $env:SQL_HOST } else { $SqlHost }
-$SqlPort = if ($env:SQL_PORT) { $env:SQL_PORT } else { $SqlPort }
 $SqlUser = if ($env:SQL_USER) { $env:SQL_USER } else { $SqlUser }
 $SqlPassword = if ($env:SQL_PASSWORD) { $env:SQL_PASSWORD } else { $SqlPassword }
 $SqlDatabase = if ($env:SQL_DATABASE) { $env:SQL_DATABASE } else { $SqlDatabase }
 
-foreach ($value in @{
-    SQL_HOST = $SqlHost
-    SQL_USER = $SqlUser
-    SQL_PASSWORD = $SqlPassword
-    SQL_DATABASE = $SqlDatabase
-}.GetEnumerator()) {
-    if ([string]::IsNullOrWhiteSpace($value.Value)) {
-        throw "Defina a variavel `$env:$($value.Key) ou informe o parametro correspondente."
-    }
+foreach ($value in @{SQL_HOST=$SqlHost; SQL_USER=$SqlUser; SQL_PASSWORD=$SqlPassword; SQL_DATABASE=$SqlDatabase}.GetEnumerator()) {
+    if ([string]::IsNullOrWhiteSpace($value.Value)) { throw "Defina a variavel `$env:$($value.Key)." }
 }
 
 $packagePath = Join-Path $PSScriptRoot "..\consumer-lambda.zip"
@@ -61,10 +63,11 @@ python -m pip install --disable-pip-version-check --no-compile `
     --python-version 3.12 `
     --only-binary=:all: `
     --requirement (Join-Path $lambdaPath "requirements.txt")
-Copy-Item (Join-Path $lambdaPath "lambda_function.py") $packageDirectory
+Copy-Item (Join-Path $lambdaPath "*.py") $packageDirectory
 Compress-Archive -Path (Join-Path $packageDirectory "*") -DestinationPath $packagePath
 
-$environment = "Variables={SQL_HOST=$SqlHost,SQL_PORT=$SqlPort,SQL_USER=$SqlUser,SQL_PASSWORD=$SqlPassword,SQL_DATABASE=$SqlDatabase}"
+$subnetIds = (aws ec2 describe-subnets --filters Name=vpc-id,Values=vpc-076c6cc7e13016221 Name=state,Values=available --query 'Subnets[].SubnetId' --output text).Trim() -split '\s+'
+$environment = "Variables={SQL_HOST=$SqlHost,SQL_PORT=$SqlPort,SQL_USER=$SqlUser,SQL_PASSWORD=$SqlPassword,SQL_DATABASE=$SqlDatabase,S3_BUCKET=$S3Bucket,S3_OUTPUT_PREFIX=$S3OutputPrefix,S3_ENRICHED_KEY=$S3EnrichedKey}"
 $previousErrorActionPreference = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 aws lambda get-function --function-name $FunctionName 2>$null | Out-Null
@@ -79,16 +82,27 @@ if ($functionLookupExitCode -ne 0) {
         --role $RoleArn `
         --zip-file fileb://$packagePath `
         --timeout 30 `
+        --vpc-config "SubnetIds=$($subnetIds -join ','),SecurityGroupIds=sg-054d1289b9839ad60" `
         --environment $environment | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel criar a Lambda $FunctionName. Verifique as permissoes AWS."
+    }
 } else {
     aws lambda update-function-code `
         --function-name $FunctionName `
         --zip-file fileb://$packagePath | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel atualizar o codigo da Lambda $FunctionName."
+    }
     aws lambda wait function-updated-v2 --function-name $FunctionName
     aws lambda update-function-configuration `
         --function-name $FunctionName `
         --timeout 30 `
+        --vpc-config "SubnetIds=$($subnetIds -join ','),SecurityGroupIds=sg-054d1289b9839ad60" `
         --environment $environment | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel atualizar a configuracao da Lambda $FunctionName."
+    }
 }
 
 Remove-Item $packageDirectory -Recurse -Force

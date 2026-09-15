@@ -2,16 +2,38 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "ListS3ExpressDirectoryBuckets",
+      "Effect": "Allow",
+      "Action": "s3express:ListAllMyDirectoryBuckets",
+      "Resource": "*"
+    },
+    {
+      "Sid": "AccessCloud9Environments",
+      "Effect": "Allow",
+      "Action": [
+        "cloud9:DescribeEnvironmentMemberships",
+        "cloud9:DescribeEnvironments",
+        "cloud9:ListEnvironments"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadObjectLockConfiguration",
+      "Effect": "Allow",
+      "Action": "s3:GetBucketObjectLockConfiguration",
+      "Resource": "arn:aws:s3:::atividade-6-1-481958198557"
+    },
+    {
       "Sid": "ReadInputObject",
       "Effect": "Allow",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::atividade-6-1-115651887176/dados/clientes.json"
+      "Resource": "arn:aws:s3:::atividade-6-1-481958198557/entrada/*"
     },
     {
       "Sid": "SendRecordsToQueue",
       "Effect": "Allow",
       "Action": "sqs:SendMessage",
-      "Resource": "arn:aws:sqs:us-east-1:115651887176:atividade-6-1-fila"
+      "Resource": "arn:aws:sqs:us-east-1:481958198557:atividade-6-1-fila"
     },
     {
       "Sid": "ConsumeRecordsFromQueue",
@@ -21,7 +43,27 @@
         "sqs:DeleteMessage",
         "sqs:GetQueueAttributes"
       ],
-      "Resource": "arn:aws:sqs:us-east-1:115651887176:atividade-6-1-fila"
+      "Resource": "arn:aws:sqs:us-east-1:481958198557:atividade-6-1-fila"
+    },
+    {
+      "Sid": "WriteProcessedRecords",
+      "Effect": "Allow",
+      "Action": "s3:PutObject",
+      "Resource": [
+        "arn:aws:s3:::atividade-6-1-481958198557/processados/*",
+        "arn:aws:s3:::atividade-6-1-481958198557/enriquecidos/*"
+      ]
+    },
+    {
+      "Sid": "UseDynamoDbTables",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:DescribeTable"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:481958198557:table/atividade-6-1-*"
     }
   ]
 }

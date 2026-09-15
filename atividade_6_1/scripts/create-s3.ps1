@@ -1,8 +1,9 @@
 param(
-    [string]$BucketName = "atividade-6-1-115651887176",
+    [string]$BucketName = "",
     [string]$Region = "us-east-1",
-    [string]$FilePath = "data/clientes.json",
-    [string]$ObjectKey = "dados/clientes.json"
+    [string]$FilePath = "dados_json",
+    [string]$ObjectPrefix = "entrada",
+    [switch]$SkipUpload
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,6 +13,11 @@ if (-not $env:AWS_SHARED_CREDENTIALS_FILE) {
 }
 
 $env:AWS_DEFAULT_REGION = $Region
+
+if ([string]::IsNullOrWhiteSpace($BucketName)) {
+    $accountId = (aws sts get-caller-identity --query Account --output text).Trim()
+    $BucketName = "atividade-6-1-$accountId"
+}
 
 Write-Host "Criando ou verificando o bucket $BucketName..."
 $bucketExists = $true
@@ -32,8 +38,18 @@ if (-not $bucketExists) {
     }
 }
 
-Write-Host "Enviando $FilePath para s3://$BucketName/$ObjectKey..."
-aws s3 cp $FilePath "s3://$BucketName/$ObjectKey"
+if ($SkipUpload) {
+    Write-Host "Bucket pronto: $BucketName"
+    exit 0
+}
 
-Write-Host "Objeto enviado com sucesso."
-aws s3api head-object --bucket $BucketName --key $ObjectKey
+if (Test-Path $FilePath -PathType Container) {
+    Write-Host "Enviando os JSON de $FilePath para s3://$BucketName/$ObjectPrefix/..."
+    aws s3 sync $FilePath "s3://$BucketName/$ObjectPrefix" --exclude "*" --include "*.json"
+    Write-Host "Arquivos JSON enviados com sucesso."
+} else {
+    $objectKey = "$ObjectPrefix/$(Split-Path $FilePath -Leaf)"
+    Write-Host "Enviando $FilePath para s3://$BucketName/$objectKey..."
+    aws s3 cp $FilePath "s3://$BucketName/$objectKey"
+    Write-Host "Arquivo enviado com sucesso."
+}

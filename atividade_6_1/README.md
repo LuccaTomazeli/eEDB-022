@@ -2,10 +2,12 @@
 
 Projeto academico de ingestao de registros JSON usando AWS S3, AWS Lambda, AWS SQS, IAM e CloudWatch.
 
+.\scripts\consultar-banco.ps1 -Limit 5
+
 ## Arquitetura
 
 ```text
-Arquivo JSON no S3
+Arquivos JSON no S3
         |
         v
 Lambda Python
@@ -17,12 +19,15 @@ Lambda Python
       Lambda consumidora
         |
         v
-      Banco SQL (MySQL/MariaDB)
+      Banco RDS MySQL (AWS)
+        |
+        v
+Mensagem enriquecida no S3
 ```
 
 A Lambda le uma lista de registros JSON no S3 e envia cada registro como uma mensagem individual para a fila SQS.
 Ela tambem aceita eventos de criacao de objetos no S3. O trigger automatico deste projeto observa somente o prefixo `entrada/`.
-      A Lambda consumidora e acionada pela fila SQS e executa uma consulta parametrizada na tabela `clientes` para cada mensagem.
+    A Lambda consumidora e acionada pela fila SQS, grava cada registro nas tabelas `bancos`, `empregados` ou `reclamacoes` e salva o resultado no mesmo bucket S3, no prefixo `processados/`.
 
 ## Recursos utilizados
 
@@ -30,7 +35,8 @@ Ela tambem aceita eventos de criacao de objetos no S3. O trigger automatico dest
 | --- | --- |
 | Regiao | `us-east-1` |
 | Bucket S3 | `atividade-6-1-115651887176` |
-| Objeto de teste | `dados/clientes.json` |
+| Objetos de entrada | `entrada/{bancos,empregados,reclamacoes}/*.json` |
+| Objetos processados | `processados/{tabela}/{id}/{messageId}.json` |
 | Prefixo automatico | `entrada/` |
 | Fila SQS | `atividade-6-1-fila` |
 | Lambda | `atividade-6-1-ingestao` |
@@ -68,7 +74,11 @@ O ultimo comando deve retornar o Account ID e a identidade AWS atual.
 
 ```text
 atividade_6_1/
-|-- data/clientes.json
+|-- Dados/
+|   |-- Bancos/
+|   |-- Empregados/
+|   `-- Reclamacoes/
+|-- dados_json/ (gerado pelo conversor)
 |-- iam/
 |   |-- lambda-permissions-policy.json
 |   `-- lambda-trust-policy.json
@@ -80,6 +90,11 @@ atividade_6_1/
 |   `-- requirements.txt
 |-- sql/schema.sql
 |-- scripts/
+|   |-- convert-data.py
+|   |-- initialize_database.py
+|   |-- enrich_database.py
+|   |-- enriquecer-banco.ps1
+|   |-- setup-fluxo-automatico.ps1
 |   |-- create-s3.ps1
 |   |-- create-sqs.ps1
 |   |-- create-iam.ps1
@@ -96,19 +111,45 @@ Os arquivos `.queue-url`, `.lambda-role-arn`, `lambda.zip` e `lambda-response.js
 
 ## Execucao inicial
 
-### 1. Criar o bucket e enviar o JSON
+### Fluxo automatico completo
+
+Para preparar toda a infraestrutura, inicializar o SQL, publicar as Lambdas, configurar S3/SQS e enviar os dados de entrada em uma unica operacao:
+
+```powershell
+.\scripts\setup-fluxo-automatico.ps1
+```
+
+Depois disso, cada novo JSON enviado para `entrada/` percorre automaticamente S3 -> Lambda -> SQS -> RDS MySQL -> tabela `dados_enriquecidos` -> S3. A tabela final e publicada em `enriquecidos/dados_enriquecidos.json`.
+
+A fila SQS e os triggers sao recursos de infraestrutura criados uma vez durante o setup; os uploads seguintes nao recriam esses recursos.
+
+O setup valida o acesso AWS antes de alterar o banco ou criar recursos. Se aparecer `voc-cancel-cred`, as credenciais temporarias do laboratorio foram revogadas ou a role atual recebeu um bloqueio explicito. Nesse caso, gere/renove as credenciais no laboratorio, atualize `.aws/credentials` e execute o setup novamente. O bloqueio nao pode ser removido por script usando a mesma identidade.
+
+### 1. Converter os dados para JSON
+
+Os arquivos originais em `Dados/` sao preservados. O conversor detecta CSV separado por `;` ou `|`, TSV e as codificacoes UTF-8, CP1252 e Latin-1. Cada registro recebe `tabela_origem`, `arquivo_origem`, `linha_origem` e `dados`.
+
+```powershell
+python scripts/convert-data.py
+```
+
+O comando gera 2.114 registros em `dados_json/`, organizados nas tabelas `bancos`, `empregados` e `reclamacoes`.
+
+### 2. Criar o bucket e enviar os JSON
 
 ```powershell
 .\scripts\create-s3.ps1
 ```
 
-O script cria ou verifica o bucket e envia `data/clientes.json` para:
+O script cria ou verifica o bucket e envia os arquivos convertidos para:
 
 ```text
-s3://atividade-6-1-115651887176/dados/clientes.json
+s3://atividade-6-1-115651887176/entrada/{bancos,empregados,reclamacoes}/*.json
 ```
 
-### 2. Criar e testar a fila
+O upload deve ser feito depois de configurar a Lambda e o trigger para que cada objeto dispare a ingestao.
+
+### 3. Criar e testar a fila
 
 ```powershell
 .\scripts\create-sqs.ps1
@@ -117,7 +158,7 @@ s3://atividade-6-1-115651887176/dados/clientes.json
 
 O primeiro script salva a URL da fila em `.queue-url`, envia uma mensagem de teste e o segundo script recebe e remove essa mensagem.
 
-### 3. IAM
+### 4. IAM
 
 Em uma conta com permissao para criar Roles, o script seria:
 
@@ -134,11 +175,26 @@ Em um ambiente profissional, crie uma Role propria com:
 - `sqs:ReceiveMessage`, `sqs:DeleteMessage` e `sqs:GetQueueAttributes` para a Lambda consumidora
 - permissoes basicas de logs do CloudWatch
 
-Para banco privado, a Lambda consumidora tambem precisa estar em uma VPC com rota, security group e subnets que alcancem o MySQL/MariaDB.
+O RDS MySQL fica em uma VPC AWS e a Lambda consumidora usa o mesmo security group. O schema e criado automaticamente pela Lambda na primeira mensagem.
+
+### Acesso ao banco pela interface
+
+O RDS existente nao deve ser criado novamente pelo Console. A acao `rds:CreateDBInstance` esta bloqueada pela policy do laboratorio. O banco existente e privado e pode ser acessado pelo Cloud9 da mesma VPC, usando:
+
+```bash
+mysql -h atividade-6-1-mysql-aws.cpllji7cpbrb.us-east-1.rds.amazonaws.com \
+  -P 3306 -u admin -p atividade
+```
+
+Nao crie um novo ambiente Cloud9: a role do laboratorio nao possui `cloud9:CreateEnvironmentEC2`, `cloud9:ListEnvironments` e `cloud9:DescribeEnvironmentMemberships`. Um administrador precisa liberar `cloud9:DescribeEnvironmentMemberships`, `cloud9:DescribeEnvironments` e `cloud9:ListEnvironments` para que o ambiente existente apareca no Console. O ambiente existente e `aws-cloud9-mycloud9-2ec1be7897bd46c996f6a0b3f7b4ee85`; abra o terminal dele no Console. O security group desse ambiente ja foi autorizado somente para TCP 3306 no RDS.
+
+O AWS CloudShell e o AWS Toolkit no IDE sao alternativas para comandos AWS, mas nao acessam diretamente este RDS privado porque rodam fora da VPC. Para consultar o banco, use o terminal do Cloud9 existente ou um host/tunel dentro da VPC.
 
 As policies de referencia estao em `iam/`.
 
-### 4. Publicar a Lambda
+Se o Console S3 mostrar a mensagem sobre `s3express:ListAllMyDirectoryBuckets`, um administrador deve adicionar essa acao a uma policy anexada a role/identidade usada no Console. Ela ja esta incluida na policy de referencia `iam/lambda-permissions-policy.json`, mas editar esse arquivo local nao altera automaticamente a role AWS `voclabs`. Depois da alteracao no IAM, atualize a pagina do S3.
+
+### 5. Publicar a Lambda
 
 ```powershell
 .\scripts\deploy-lambda.ps1
@@ -152,7 +208,7 @@ O script:
 
 O boto3 ja e fornecido pelo runtime Python da AWS Lambda, portanto nao e necessario instala-lo no pacote atual.
 
-### 5. Configurar o trigger automatico
+### 6. Configurar o trigger automatico
 
 ```powershell
 .\scripts\configure-s3-trigger.ps1
@@ -177,8 +233,8 @@ Resultado esperado:
 ```json
 {
   "statusCode": 200,
-  "recordsSent": 2,
-  "body": "2 registros enviados para SQS"
+  "recordsSent": 3,
+  "body": "3 registros enviados para SQS"
 }
 ```
 
@@ -190,11 +246,12 @@ Depois, leia as mensagens:
 
 ## Teste automatico S3 -> Lambda -> SQS
 
-Envie um novo arquivo para o prefixo monitorado:
+Para repetir somente o upload dos dados convertidos:
 
 ```powershell
-aws s3 cp data\clientes.json `
-  s3://atividade-6-1-115651887176/entrada/novo-teste.json
+aws s3 sync dados_json\ `
+  s3://atividade-6-1-115651887176/entrada/ `
+  --exclude "*" --include "*.json"
 ```
 
 O upload dispara a Lambda automaticamente. Para verificar as mensagens:
@@ -205,16 +262,11 @@ O upload dispara a Lambda automaticamente. Para verificar as mensagens:
 
 Cada registro do JSON aparece como uma mensagem separada na fila.
 
-### 6. Configurar o banco SQL e o consumidor
+### 7. Configurar o RDS MySQL e o consumidor
 
-O schema de referencia esta em `sql/schema.sql`. Execute-o no MySQL/MariaDB e configure as credenciais apenas no ambiente local:
+O RDS MySQL e criado na VPC AWS como `atividade-6-1-mysql-aws`. As tabelas `bancos`, `empregados`, `reclamacoes` e `dados_enriquecidos` sao criadas automaticamente pela Lambda consumidora:
 
 ```powershell
-$env:SQL_HOST = "seu-endpoint-rds"
-$env:SQL_PORT = "3306"
-$env:SQL_USER = "seu-usuario"
-$env:SQL_PASSWORD = "sua-senha"
-$env:SQL_DATABASE = "atividade"
 ```
 
 Publique a Lambda e conecte-a a fila:
@@ -224,7 +276,48 @@ Publique a Lambda e conecte-a a fila:
 .\scripts\configure-sqs-consumer.ps1
 ```
 
-Para cada mensagem, a Lambda executa `SELECT id, nome, email FROM clientes WHERE id = %s`. O resultado e registrado no CloudWatch. Mensagens invalidas sao devolvidas em `batchItemFailures` para retry; uma falha de conexao ou consulta SQL faz o lote inteiro falhar.
+### 8. Tratar, enriquecer e salvar no S3
+
+Depois que os registros estiverem nas tabelas brutas, execute:
+
+```powershell
+.\scripts\enriquecer-banco.ps1
+```
+
+O processo cria ou atualiza a tabela MySQL `dados_enriquecidos`. Ele normaliza nomes e CNPJs, converte metricas numericas, soma reclamacoes e relaciona os registros correspondentes de empregados e reclamacoes. O resultado completo e salvo em:
+
+```text
+s3://atividade-6-1-481958198557/enriquecidos/dados_enriquecidos.json
+```
+
+Para escolher outro caminho no S3:
+
+```powershell
+.\scripts\enriquecer-banco.ps1 -OutputKey "enriquecidos/versao-2.json"
+```
+
+Para cada mensagem dos novos arquivos, a Lambda insere o registro bruto em sua tabela de origem, combina a mensagem com o registro persistido e salva o JSON enriquecido no bucket configurado por `S3_BUCKET`. O prefixo pode ser alterado por `S3_OUTPUT_PREFIX` e usa `processados` por padrao.
+
+O objeto gerado tem esta estrutura:
+
+```json
+{
+  "mensagem_original": {
+    "tabela_origem": "bancos",
+    "arquivo_origem": "EnquadramentoInicia_v2.tsv",
+    "linha_origem": 2,
+    "dados": { "Segmento": "S1", "CNPJ": "0", "Nome": "BANCO DO BRASIL - PRUDENCIAL" }
+  },
+  "registro_inserido": { "id": 1, "arquivo_origem": "EnquadramentoInicia_v2.tsv" },
+  "processamento": {
+    "message_id": "...",
+    "processado_em": "2026-09-14T12:00:00+00:00",
+    "status": "persistido"
+  }
+}
+```
+
+Mensagens invalidas sao devolvidas em `batchItemFailures` para retry; uma falha de conexao, consulta SQL ou escrita no S3 faz o lote inteiro falhar.
 
 ## CloudWatch Logs
 

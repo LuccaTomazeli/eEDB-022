@@ -1,6 +1,7 @@
 param(
     [string]$FunctionName = "atividade-6-1-consumidor-sql",
-    [string]$Region = "us-east-1"
+    [string]$Region = "us-east-1",
+    [int]$MaximumConcurrency = 2
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,12 +39,14 @@ if (-not $mappingUuid -or $mappingUuid -eq "None") {
         --event-source-arn $queueArn `
         --batch-size 10 `
         --function-response-types ReportBatchItemFailures `
+        --scaling-config "MaximumConcurrency=$MaximumConcurrency" `
         --enabled | Out-Null
 } else {
     aws lambda update-event-source-mapping `
         --uuid $mappingUuid `
         --batch-size 10 `
         --function-response-types ReportBatchItemFailures `
+        --scaling-config "MaximumConcurrency=$MaximumConcurrency" `
         --enabled | Out-Null
 }
 

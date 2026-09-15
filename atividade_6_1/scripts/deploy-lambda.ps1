@@ -1,7 +1,7 @@
 param(
     [string]$FunctionName = "atividade-6-1-ingestao",
     [string]$Region = "us-east-1",
-    [string]$RoleArn = "arn:aws:iam::115651887176:role/LabRole"
+    [string]$RoleArn = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,8 +11,12 @@ if (-not $env:AWS_SHARED_CREDENTIALS_FILE) {
     $env:AWS_SHARED_CREDENTIALS_FILE = Join-Path $PSScriptRoot "..\.aws\credentials"
 }
 
-$bucket = "atividade-6-1-115651887176"
-$key = "dados/clientes.json"
+$accountId = (aws sts get-caller-identity --query Account --output text).Trim()
+$bucket = "atividade-6-1-$accountId"
+if ([string]::IsNullOrWhiteSpace($RoleArn)) {
+    $RoleArn = "arn:aws:iam::${accountId}:role/LabRole"
+}
+$key = "entrada/bancos/EnquadramentoInicia_v2.json"
 $queueUrl = (Get-Content (Join-Path $PSScriptRoot "..\.queue-url") -Raw).Trim()
 $packagePath = Join-Path $PSScriptRoot "..\lambda.zip"
 $lambdaPath = Join-Path $PSScriptRoot "..\lambda"
@@ -37,16 +41,25 @@ if ($functionLookupExitCode -ne 0) {
         --role $RoleArn `
         --zip-file fileb://$packagePath `
         --environment "Variables={S3_BUCKET=$bucket,S3_KEY=$key,SQS_QUEUE_URL=$queueUrl}"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel criar a Lambda $FunctionName."
+    }
 } else {
     aws lambda update-function-code `
         --function-name $FunctionName `
         --zip-file fileb://$packagePath | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel atualizar o codigo da Lambda $FunctionName."
+    }
 
     aws lambda wait function-updated-v2 --function-name $FunctionName
 
     aws lambda update-function-configuration `
         --function-name $FunctionName `
         --environment "Variables={S3_BUCKET=$bucket,S3_KEY=$key,SQS_QUEUE_URL=$queueUrl}" | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Nao foi possivel atualizar a configuracao da Lambda $FunctionName."
+    }
 }
 
 Write-Host "Lambda publicada: $FunctionName"
