@@ -8,3 +8,7 @@ consumer-lambda.zip
 lambda-response.json
 __pycache__/
 *.pyc
+build/
+terraform/.terraform/
+terraform/terraform.tfstate*
+terraform/terraform.tfvars

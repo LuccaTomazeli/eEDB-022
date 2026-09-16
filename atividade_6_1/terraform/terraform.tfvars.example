@@ -1,0 +1,12 @@
+region                 = "us-east-1"
+bucket_name            = "atividade-6-1-SEU_ACCOUNT_ID"
+queue_name             = "atividade-6-1-fila"
+lambda_role_arn       = "arn:aws:iam::SEU_ACCOUNT_ID:role/LabRole"
+subnet_ids             = ["subnet-PRIVADA-1", "subnet-PRIVADA-2"]
+security_group_ids     = ["sg-DA-LAMBDA"]
+
+sql_host               = "host-do-rds"
+sql_user               = "admin"
+sql_password           = "substitua-por-um-segredo"
+sql_database           = "atividade"
+sql_port               = "3306"

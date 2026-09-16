@@ -2,7 +2,7 @@
 
 Projeto academico de ingestao de registros JSON usando AWS S3, AWS Lambda, AWS SQS, IAM e CloudWatch.
 
-.\scripts\consultar-banco.ps1 -Limit 5
+python scripts/query_database.py --limit 5
 
 ## Arquitetura
 
@@ -46,27 +46,19 @@ Ela tambem aceita eventos de criacao de objetos no S3. O trigger automatico dest
 
 ## Pre-requisitos
 
-- Windows PowerShell
+- Terraform 1.5 ou superior
 - Python 3.12 ou superior
-- AWS CLI configurado
+- AWS CLI ou credenciais AWS configuradas
 - Conta AWS com acesso a S3, SQS e Lambda
-- VS Code
+- Docker opcional para dependencias nativas
 
 O projeto usa credenciais temporarias armazenadas localmente em `.aws/credentials`. Esse arquivo nao deve ser versionado nem compartilhado.
 
 ## Preparar o terminal
 
-Na pasta raiz do projeto:
+Na pasta raiz do projeto, em Windows, Linux ou macOS:
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\.venv\Scripts\Activate.ps1
-
-$env:AWS_SHARED_CREDENTIALS_FILE = "$PWD\.aws\credentials"
-$env:AWS_DEFAULT_REGION = "us-east-1"
-
-aws sts get-caller-identity
-```
+Crie e ative um ambiente virtual Python conforme o procedimento do seu sistema operacional, instale `lambda_consumer/requirements.txt` e configure as credenciais AWS normalmente. A regiao principal e informada em `terraform/terraform.tfvars`.
 
 O ultimo comando deve retornar o Account ID e a identidade AWS atual.
 
@@ -79,7 +71,16 @@ atividade_6_1/
 |   |-- Empregados/
 |   `-- Reclamacoes/
 |-- dados_json/ (gerado pelo conversor)
-|-- iam/
+|-- terraform/
+|   |-- versions.tf
+|   |-- variables.tf
+|   |-- data.tf
+|   |-- s3.tf
+|   |-- sqs.tf
+|   |-- lambda.tf
+|   |-- outputs.tf
+|   `-- terraform.tfvars.example
+|-- iam/ (policies de referencia)
 |   |-- lambda-permissions-policy.json
 |   `-- lambda-trust-policy.json
 |-- lambda/
@@ -91,45 +92,45 @@ atividade_6_1/
 |-- sql/schema.sql
 |-- scripts/
 |   |-- convert-data.py
+|   |-- package_lambdas.py
+|   |-- upload_data.py
+|   |-- receive_sqs.py
 |   |-- initialize_database.py
 |   |-- enrich_database.py
-|   |-- enriquecer-banco.ps1
-|   |-- setup-fluxo-automatico.ps1
-|   |-- create-s3.ps1
-|   |-- create-sqs.ps1
-|   |-- create-iam.ps1
-|   |-- deploy-lambda.ps1
-|   |-- configure-s3-trigger.ps1
-|   |-- deploy-consumer-lambda.ps1
-|   |-- configure-sqs-consumer.ps1
-|   `-- receive-sqs.ps1
+|   `-- query_database.py
 |-- .gitignore
 `-- README.md
 ```
 
-Os arquivos `.queue-url`, `.lambda-role-arn`, `lambda.zip` e `lambda-response.json` sao gerados localmente e estao no `.gitignore`.
+Os arquivos de `build/`, o estado do Terraform e os arquivos temporarios locais estao no `.gitignore`.
 
 ## Execucao inicial
 
 ### Fluxo automatico completo
 
-Para preparar toda a infraestrutura, inicializar o SQL, publicar as Lambdas, configurar S3/SQS e enviar os dados de entrada em uma unica operacao:
+Para preparar a infraestrutura, empacotar as Lambdas e configurar S3/SQS:
 
-```powershell
-.\scripts\setup-fluxo-automatico.ps1
+Copie `terraform/terraform.tfvars.example` para `terraform/terraform.tfvars`.
+
+```bash
+python scripts/package_lambdas.py
+terraform -chdir=terraform init
+terraform -chdir=terraform apply
 ```
+
+Edite `terraform/terraform.tfvars` antes do `apply`. Informe especialmente as subnets privadas, o security group da Lambda e as credenciais do RDS. A `LabRole` do laboratorio e usada por padrao; em outra conta, informe uma `lambda_role_arn` propria.
 
 Depois disso, cada novo JSON enviado para `entrada/` percorre automaticamente S3 -> Lambda -> SQS -> RDS MySQL -> tabela `dados_enriquecidos` -> S3. A tabela final e publicada em `enriquecidos/dados_enriquecidos.json`.
 
-A fila SQS e os triggers sao recursos de infraestrutura criados uma vez durante o setup; os uploads seguintes nao recriam esses recursos.
+A fila SQS e os triggers sao recursos de infraestrutura gerenciados pelo Terraform; os uploads seguintes nao recriam esses recursos.
 
-O setup valida o acesso AWS antes de alterar o banco ou criar recursos. Se aparecer `voc-cancel-cred`, as credenciais temporarias do laboratorio foram revogadas ou a role atual recebeu um bloqueio explicito. Nesse caso, gere/renove as credenciais no laboratorio, atualize `.aws/credentials` e execute o setup novamente. O bloqueio nao pode ser removido por script usando a mesma identidade.
+Se aparecer `voc-cancel-cred`, as credenciais temporarias do laboratorio foram revogadas ou a role atual recebeu um bloqueio explicito. Nesse caso, gere/renove as credenciais no laboratorio e execute o `terraform apply` novamente. O bloqueio nao pode ser removido usando a mesma identidade.
 
 ### 1. Converter os dados para JSON
 
 Os arquivos originais em `Dados/` sao preservados. O conversor detecta CSV separado por `;` ou `|`, TSV e as codificacoes UTF-8, CP1252 e Latin-1. Cada registro recebe `tabela_origem`, `arquivo_origem`, `linha_origem` e `dados`.
 
-```powershell
+```bash
 python scripts/convert-data.py
 ```
 
@@ -137,11 +138,11 @@ O comando gera 2.114 registros em `dados_json/`, organizados nas tabelas `bancos
 
 ### 2. Criar o bucket e enviar os JSON
 
-```powershell
-.\scripts\create-s3.ps1
+```bash
+python scripts/upload_data.py
 ```
 
-O script cria ou verifica o bucket e envia os arquivos convertidos para:
+O Terraform cria o bucket e o script envia os arquivos convertidos para:
 
 ```text
 s3://atividade-6-1-115651887176/entrada/{bancos,empregados,reclamacoes}/*.json
@@ -149,24 +150,17 @@ s3://atividade-6-1-115651887176/entrada/{bancos,empregados,reclamacoes}/*.json
 
 O upload deve ser feito depois de configurar a Lambda e o trigger para que cada objeto dispare a ingestao.
 
-### 3. Criar e testar a fila
+### 3. Testar a fila
 
-```powershell
-.\scripts\create-sqs.ps1
-.\scripts\receive-sqs.ps1
+```bash
+python scripts/receive_sqs.py
 ```
 
-O primeiro script salva a URL da fila em `.queue-url`, envia uma mensagem de teste e o segundo script recebe e remove essa mensagem.
+O Terraform cria a fila e o output `queue_url` fornece sua URL para os comandos Python.
 
 ### 4. IAM
 
-Em uma conta com permissao para criar Roles, o script seria:
-
-```powershell
-.\scripts\create-iam.ps1
-```
-
-Neste ambiente de laboratorio, `iam:CreateRole` foi bloqueado. Por isso, a Lambda usa a Role pre-criada `LabRole`, que permite ser assumida pelo servico Lambda.
+Neste ambiente de laboratorio, `iam:CreateRole` foi bloqueado. Por isso, o Terraform usa a Role pre-criada `LabRole`. Em ambiente profissional, informe uma role propria em `lambda_role_arn`.
 
 Em um ambiente profissional, crie uma Role propria com:
 
@@ -194,38 +188,32 @@ As policies de referencia estao em `iam/`.
 
 Se o Console S3 mostrar a mensagem sobre `s3express:ListAllMyDirectoryBuckets`, um administrador deve adicionar essa acao a uma policy anexada a role/identidade usada no Console. Ela ja esta incluida na policy de referencia `iam/lambda-permissions-policy.json`, mas editar esse arquivo local nao altera automaticamente a role AWS `voclabs`. Depois da alteracao no IAM, atualize a pagina do S3.
 
-### 5. Publicar a Lambda
+### 5. Empacotamento e publicacao
 
-```powershell
-.\scripts\deploy-lambda.ps1
+```bash
+python scripts/package_lambdas.py
+terraform -chdir=terraform apply
 ```
 
-O script:
+O empacotador Python:
 
-1. Empacota a pasta `lambda/` em `lambda.zip`.
-2. Cria ou atualiza a Lambda `atividade-6-1-ingestao`.
-3. Configura as variaveis `S3_BUCKET`, `S3_KEY` e `SQS_QUEUE_URL`.
+1. Instala as dependencias da Lambda consumidora em formato compativel com Linux.
+2. Gera o pacote em `build/consumer-lambda.zip`.
+3. O Terraform cria ou atualiza as duas Lambdas e suas variaveis.
 
 O boto3 ja e fornecido pelo runtime Python da AWS Lambda, portanto nao e necessario instala-lo no pacote atual.
 
-### 6. Configurar o trigger automatico
-
-```powershell
-.\scripts\configure-s3-trigger.ps1
-```
-
-O script concede permissao para o S3 invocar a Lambda e configura o evento `s3:ObjectCreated:Put` com prefixo `entrada/`.
+O trigger S3 e o mapeamento SQS da Lambda consumidora sao recursos declarados em Terraform.
 
 ## Teste manual da Lambda
 
-```powershell
-aws --no-cli-pager lambda invoke `
-  --function-name atividade-6-1-ingestao `
-  --payload '{}' `
-  --cli-binary-format raw-in-base64-out `
+```bash
+aws --no-cli-pager lambda invoke \
+  --function-name atividade-6-1-ingestao \
+  --payload '{}' \
+  --cli-binary-format raw-in-base64-out \
   lambda-response.json
-
-Get-Content lambda-response.json
+cat lambda-response.json
 ```
 
 Resultado esperado:
@@ -240,24 +228,22 @@ Resultado esperado:
 
 Depois, leia as mensagens:
 
-```powershell
-.\scripts\receive-sqs.ps1
+```bash
+python scripts/receive_sqs.py
 ```
 
 ## Teste automatico S3 -> Lambda -> SQS
 
 Para repetir somente o upload dos dados convertidos:
 
-```powershell
-aws s3 sync dados_json\ `
-  s3://atividade-6-1-115651887176/entrada/ `
-  --exclude "*" --include "*.json"
+```bash
+python scripts/upload_data.py
 ```
 
 O upload dispara a Lambda automaticamente. Para verificar as mensagens:
 
-```powershell
-.\scripts\receive-sqs.ps1
+```bash
+python scripts/receive_sqs.py
 ```
 
 Cada registro do JSON aparece como uma mensagem separada na fila.
@@ -266,22 +252,14 @@ Cada registro do JSON aparece como uma mensagem separada na fila.
 
 O RDS MySQL e criado na VPC AWS como `atividade-6-1-mysql-aws`. As tabelas `bancos`, `empregados`, `reclamacoes` e `dados_enriquecidos` sao criadas automaticamente pela Lambda consumidora:
 
-```powershell
-```
-
-Publique a Lambda e conecte-a a fila:
-
-```powershell
-.\scripts\deploy-consumer-lambda.ps1
-.\scripts\configure-sqs-consumer.ps1
-```
+O Terraform publica a Lambda consumidora e conecta a fila por meio de `aws_lambda_event_source_mapping`.
 
 ### 8. Tratar, enriquecer e salvar no S3
 
 Depois que os registros estiverem nas tabelas brutas, execute:
 
-```powershell
-.\scripts\enriquecer-banco.ps1
+```bash
+python scripts/enrich_database.py
 ```
 
 O processo cria ou atualiza a tabela MySQL `dados_enriquecidos`. Ele normaliza nomes e CNPJs, converte metricas numericas, soma reclamacoes e relaciona os registros correspondentes de empregados e reclamacoes. O resultado completo e salvo em:
@@ -292,8 +270,8 @@ s3://atividade-6-1-481958198557/enriquecidos/dados_enriquecidos.json
 
 Para escolher outro caminho no S3:
 
-```powershell
-.\scripts\enriquecer-banco.ps1 -OutputKey "enriquecidos/versao-2.json"
+```bash
+S3_ENRICHED_KEY="enriquecidos/versao-2.json" python scripts/enrich_database.py
 ```
 
 Para cada mensagem dos novos arquivos, a Lambda insere o registro bruto em sua tabela de origem, combina a mensagem com o registro persistido e salva o JSON enriquecido no bucket configurado por `S3_BUCKET`. O prefixo pode ser alterado por `S3_OUTPUT_PREFIX` e usa `processados` por padrao.
@@ -331,8 +309,8 @@ Os logs do consumidor ficam em `/aws/lambda/atividade-6-1-consumidor-sql`.
 
 Para verificar pelo AWS CLI:
 
-```powershell
-aws --no-cli-pager logs describe-log-groups `
+```bash
+aws --no-cli-pager logs describe-log-groups \
   --log-group-name-prefix /aws/lambda/atividade-6-1-ingestao
 ```
 
@@ -349,18 +327,13 @@ No Console AWS:
 
 Confirme o caminho das credenciais:
 
-```powershell
-$env:AWS_SHARED_CREDENTIALS_FILE = "$PWD\.aws\credentials"
+```bash
 aws sts get-caller-identity
 ```
 
 ### NoRegion
 
-Configure a regiao no terminal:
-
-```powershell
-$env:AWS_DEFAULT_REGION = "us-east-1"
-```
+Use a regiao informada em `terraform.tfvars` ou na configuracao padrao da AWS CLI.
 
 ### AccessDenied em IAM
 
@@ -370,13 +343,13 @@ A identidade usada precisa poder criar ou reutilizar a Role. Em laboratorios AWS
 
 Uma atualizacao ainda esta em andamento. Aguarde a funcao ficar `Active` e execute novamente:
 
-```powershell
-aws --no-cli-pager lambda get-function-configuration `
-  --function-name atividade-6-1-ingestao `
+```bash
+aws --no-cli-pager lambda get-function-configuration \
+  --function-name atividade-6-1-ingestao \
   --query '{State:State,LastUpdateStatus:LastUpdateStatus}'
 ```
 
-O script `deploy-lambda.ps1` ja aguarda a atualizacao do codigo antes de atualizar a configuracao.
+O Terraform aguarda o estado consistente dos recursos antes de concluir o `apply`.
 
 ### Nenhuma mensagem na SQS
 
@@ -384,21 +357,15 @@ Verifique se:
 
 - O upload foi feito no prefixo `entrada/`.
 - A Lambda esta `Active`.
-- A URL em `.queue-url` e a fila correta.
+- A fila `atividade-6-1-fila` existe e esta na regiao configurada.
 - A mensagem nao foi removida por um teste anterior.
 
 ## Limpeza dos recursos
 
 Execute somente quando nao precisar mais da demonstracao:
 
-```powershell
-$env:AWS_DEFAULT_REGION = "us-east-1"
-$bucket = "atividade-6-1-115651887176"
-$queueUrl = (Get-Content .queue-url -Raw).Trim()
-
-aws s3 rb "s3://$bucket" --force
-aws sqs delete-queue --queue-url $queueUrl
-aws lambda delete-function --function-name atividade-6-1-ingestao
+```bash
+terraform -chdir=terraform destroy
 ```
 
 A exclusao da Lambda e dos demais recursos pode ser impedida pelas politicas do laboratorio.
