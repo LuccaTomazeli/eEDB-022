@@ -22,7 +22,7 @@ Lambda Python
       Banco RDS MySQL (AWS)
         |
         v
-Mensagem enriquecida no S3
+        S3
 ```
 
 A Lambda le uma lista de registros JSON no S3 e envia cada registro como uma mensagem individual para a fila SQS.
