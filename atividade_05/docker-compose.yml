@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: eedb022_a5
     ports:
-      - "5433:5432"
+      - "5440:5432"
     volumes:
       - pipeline_postgres_data:/var/lib/postgresql/data
     healthcheck:

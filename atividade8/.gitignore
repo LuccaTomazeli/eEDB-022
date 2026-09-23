@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+saida/
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+*.pyc
